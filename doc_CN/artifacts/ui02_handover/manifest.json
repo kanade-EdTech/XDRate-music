@@ -1,0 +1,132 @@
+{
+  "task": "V02-UI-02",
+  "generatedBy": "npm run handover:ui02",
+  "fixture": "Beethoven fixed visual fixture shared with e2e/baselines.spec.ts",
+  "evidence": [
+    {
+      "path": "before/card-landscape-16-9-dark.png",
+      "bytes": 1308258,
+      "sha256": "a2e15fbd1f3ddfb2de3bd84374a0b330a366413bd8b7d292139f43541e644b1d"
+    },
+    {
+      "path": "before/card-landscape-16-9-light.png",
+      "bytes": 1117870,
+      "sha256": "f251083c8211789982201ef378ba1bf08211ca9fe7fb40bfa04b3a22459f79c4"
+    },
+    {
+      "path": "before/card-portrait-4-5-dark.png",
+      "bytes": 1868503,
+      "sha256": "923a3ad340dad555e4fdb04260a0cac8799f910d9c532a59bcc11aa824b2ba76"
+    },
+    {
+      "path": "before/card-portrait-4-5-light.png",
+      "bytes": 1768183,
+      "sha256": "da6114df54e930293a33a1f3c4bb910003b5aee9e03da14ad809dcdace453618"
+    },
+    {
+      "path": "before/card-square-1-1-dark.png",
+      "bytes": 1335498,
+      "sha256": "b9010a5f39296a21cba1b37f6685a03ef936e56679a8b918f7f14e680785b9c0"
+    },
+    {
+      "path": "before/card-square-1-1-light.png",
+      "bytes": 1091134,
+      "sha256": "bef08e020683767652af3d4ec0a20e71654fdeffa27154baf8f02604ac706d7a"
+    },
+    {
+      "path": "before/card-standard-4-3-dark.png",
+      "bytes": 1640426,
+      "sha256": "d00b0705dd39a1b8de188f142f11e68224672dac8c20f619f30bf56734241b05"
+    },
+    {
+      "path": "before/card-standard-4-3-light.png",
+      "bytes": 1577294,
+      "sha256": "4ee4b5cfb30f6a436fb597b658c216a67ec13264d6763e97a4358c217311760f"
+    },
+    {
+      "path": "before/control-bananas-light.png",
+      "bytes": 9600,
+      "sha256": "e871772dc7367778a2eb0f36fd24fccfd48da54d23ba60f8e61552e54f3b58ca"
+    },
+    {
+      "path": "before/control-stars-light.png",
+      "bytes": 3887,
+      "sha256": "c658654e469df515ff882b5edcf9c9a56c809470b1cc6d1efbe2743b99aaaff2"
+    },
+    {
+      "path": "before/editor-professional-full-light.png",
+      "bytes": 278545,
+      "sha256": "de97135df80e8e6ccc04a1a668e431114c16bdf3726a155bd0732a85cb6174a6"
+    },
+    {
+      "path": "after/card-landscape-16-9-dark.png",
+      "bytes": 1308258,
+      "sha256": "a2e15fbd1f3ddfb2de3bd84374a0b330a366413bd8b7d292139f43541e644b1d"
+    },
+    {
+      "path": "after/card-landscape-16-9-light.png",
+      "bytes": 1117870,
+      "sha256": "f251083c8211789982201ef378ba1bf08211ca9fe7fb40bfa04b3a22459f79c4"
+    },
+    {
+      "path": "after/card-portrait-4-5-dark.png",
+      "bytes": 1870524,
+      "sha256": "ce810dc85a282d3dcc379722e576df5c9891ddc77d6849344db3389e1b396a2e"
+    },
+    {
+      "path": "after/card-portrait-4-5-light.png",
+      "bytes": 1770353,
+      "sha256": "6cd5ba7ca51d7d31ee97139eb31be3b1faafb30a6efa32deadfb9bdd97bc6566"
+    },
+    {
+      "path": "after/card-square-1-1-dark.png",
+      "bytes": 1337200,
+      "sha256": "8bd70e94143c9d236105673658511824b7ec75300b7769cffbee3a75d22b020f"
+    },
+    {
+      "path": "after/card-square-1-1-light.png",
+      "bytes": 1093023,
+      "sha256": "a46ee7e865b6374d0fc0d8e12152f5f35dc223e24fe416cbba58c856a4d86bfc"
+    },
+    {
+      "path": "after/card-standard-4-3-dark.png",
+      "bytes": 1640426,
+      "sha256": "d00b0705dd39a1b8de188f142f11e68224672dac8c20f619f30bf56734241b05"
+    },
+    {
+      "path": "after/card-standard-4-3-light.png",
+      "bytes": 1577294,
+      "sha256": "4ee4b5cfb30f6a436fb597b658c216a67ec13264d6763e97a4358c217311760f"
+    },
+    {
+      "path": "after/control-bananas-dark.png",
+      "bytes": 2576,
+      "sha256": "42e9dbd3c528c96dd4c955c659b61910da1fbbfd55eef7b634c9356f1fc2e7b6"
+    },
+    {
+      "path": "after/control-bananas-light.png",
+      "bytes": 9600,
+      "sha256": "e871772dc7367778a2eb0f36fd24fccfd48da54d23ba60f8e61552e54f3b58ca"
+    },
+    {
+      "path": "after/control-stars-dark.png",
+      "bytes": 1633,
+      "sha256": "d47f4b283f70aa0df54a9ef74ff9f8aadb9fe4f521e80c37aa2fa3c2691f5fce"
+    },
+    {
+      "path": "after/control-stars-light.png",
+      "bytes": 3887,
+      "sha256": "c658654e469df515ff882b5edcf9c9a56c809470b1cc6d1efbe2743b99aaaff2"
+    },
+    {
+      "path": "after/editor-professional-full-dark.png",
+      "bytes": 268895,
+      "sha256": "5e66a6a78ad0842539ded4d0308c167fcab29ac285f87e2c568245fd7b407857"
+    },
+    {
+      "path": "after/editor-professional-full-light.png",
+      "bytes": 282165,
+      "sha256": "5d9ccd6101166ad094d0bd22ab6a57bf2277cb4e0e5e7894d9e113a49499d357"
+    }
+  ]
+}
