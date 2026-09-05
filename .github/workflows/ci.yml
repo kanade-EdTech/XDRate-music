@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web-quality:
+    name: Web quality and cross-browser tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Cross-browser and accessibility smoke tests
+        run: npm run test:e2e
+
+      - name: Audit Node production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  security-boundary:
+    name: Security and offline boundary
+    needs: web-quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check security boundary
+        run: npm run check:security
+
+      - name: Check desktop configuration
+        run: npm run check:desktop-config
+
+  desktop-quality:
+    name: Windows desktop and native tests
+    needs: security-boundary
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run native tests
+        run: npm run test:rust
+
+      - name: Install RustSec audit tool
+        run: cargo install cargo-audit --locked
+
+      - name: Audit Rust lockfile
+        run: cargo audit --file src-tauri/Cargo.lock
+
+      - name: Build unsigned internal desktop candidate
+        run: npm run desktop:build
+
+  visual:
+    name: Windows visual regression
+    needs: web-quality
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium
+
+      - name: Compare immutable visual baselines
+        run: npm run test:visual
+
+  release-candidate-gate:
+    name: Release candidate gate
+    needs: [desktop-quality, visual]
+    runs-on: windows-latest
+    steps:
+      - name: Gate result
+        run: Write-Output "Web, security, desktop, and visual jobs passed. Signing and clean-VM manual gates still apply before public RC."

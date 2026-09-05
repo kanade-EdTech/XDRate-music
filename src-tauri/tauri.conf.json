@@ -1,0 +1,52 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "XDRate Music",
+  "version": "../package.json",
+  "identifier": "com.xdrate.music",
+  "build": {
+    "beforeDevCommand": "npm run dev:web",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build:web",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "XDRate Music",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 720,
+        "minHeight": 720,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; img-src 'self' asset: http://asset.localhost data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'; form-action 'none'",
+      "devCsp": "default-src 'self' http://localhost:1420; img-src 'self' asset: http://asset.localhost http://localhost:1420 data: blob:; style-src 'self' 'unsafe-inline' http://localhost:1420; font-src 'self' data:; script-src 'self' 'unsafe-eval' http://localhost:1420; connect-src 'self' ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Kehun_EdTech",
+    "copyright": "Copyright © 2026 科魂老师 / Kehun_EdTech",
+    "category": "Music",
+    "shortDescription": "Offline multidimensional music rating and share-card tool.",
+    "longDescription": "XDRate Music is an offline-first Windows application for multidimensional music ratings, local archives, and deterministic share-card exports.",
+    "createUpdaterArtifacts": false,
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
+  },
+  "plugins": {}
+}
