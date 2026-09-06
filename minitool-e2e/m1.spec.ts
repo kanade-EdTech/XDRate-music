@@ -13,7 +13,7 @@ test('final M1 artifact is classic-script, relative-resource, and offline', asyn
   await page.goto(artifactUrl.href);
   await expect(page.getByRole('heading', { name: '多维音乐评价' })).toBeVisible();
   await expect(page.getByText(/未检测到 JSBridge/)).toBeVisible();
-  await expect(page.getByText(/不会联网或直接发布笔记/)).toBeVisible();
+  await expect(page.getByText(/不会联网/)).toBeVisible();
 });
 
 test('calculates the 100-point score and restores a complete local draft', async ({ page }) => {

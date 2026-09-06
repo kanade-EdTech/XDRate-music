@@ -23,6 +23,15 @@ import {
   type MiniToolContentTemplateCatalog,
 } from './contentTemplates';
 import { compressCoverImage, type CompressedCover } from './coverImage';
+import {
+  buildPostNotePayload,
+  countPostNoteCharacters,
+  limitPostNoteText,
+  POST_NOTE_LIMITS,
+  type PostNoteDraft,
+  type PostNoteTruncation,
+} from './postNotePayload';
+import { loadPendingPostDraft, savePendingPostDraft } from './postNoteStorage';
 import { saveMiniToolWorkspace, type MiniToolLocale } from './storage';
 import { calculateViewportMetrics } from './viewport';
 
@@ -38,6 +47,17 @@ type TemplateNotice =
   | 'limit'
   | 'too-large';
 type AlbumState = 'idle' | 'preview-ready' | 'saving' | 'saved' | 'cancelled' | 'failed';
+type PostState =
+  | 'idle'
+  | 'confirming'
+  | 'restored'
+  | 'persisting'
+  | 'submitting'
+  | 'accepted'
+  | 'cancelled'
+  | 'failed'
+  | 'storage-failed'
+  | 'invalid';
 type CoverState =
   | 'idle'
   | 'processing'
@@ -53,6 +73,8 @@ interface InitialState {
   saveState: SaveState;
   templateCatalog: MiniToolContentTemplateCatalog;
   templateNotice: TemplateNotice;
+  pendingPost: PostNoteDraft | null;
+  pendingPostState: Extract<PostState, 'idle' | 'restored' | 'invalid'>;
 }
 
 const copy = {
@@ -100,9 +122,9 @@ const copy = {
     negativeName: '扣分项名称',
     overall: '总体评价',
     story: '个人故事',
-    exportTitle: '评分卡预览与相册保存',
+    exportTitle: '评分卡预览、相册与发布',
     exportHelp:
-      '预览与导出使用同一份正式评分卡模型和布局。当前比例可切换，保存前请确认文字没有被截断。',
+      '预览、相册保存和发布确认使用同一张正式评分卡 PNG。当前比例可切换，提交前请确认文字和图片。',
     generate: '生成评分卡 PNG',
     saveAlbum: '保存评分卡到系统相册',
     bridgeReady: 'JSBridge 已检测到',
@@ -113,8 +135,34 @@ const copy = {
     albumCancelled: '用户取消了保存',
     albumFailed: '保存失败；草稿仍保留，可重试',
     preview: '评分卡 PNG 预览',
+    preparePost: '发布到小红书',
+    postRequiresPreview: '请先生成评分卡 PNG，再进入发布确认。',
+    postBridgeMissing: '当前客户端未提供帖子发布能力；仍可生成 PNG 并保存到相册。',
+    postConfirmation: '发布确认',
+    postHelp: '请确认将要提交的文字和图片。最终公开发布仍由你在小红书原生页面完成。',
+    postTitle: '帖子标题',
+    postContent: '帖子正文',
+    postTags: '标签（可选）',
+    postTitleCount: '标题字符数：',
+    postContentCount: '正文字数：',
+    postImage: '待提交的评分卡',
+    postPrivacyTitle: '提交范围与隐私',
+    postPrivacy:
+      '确认页仍在本地编辑。只有点击“去小红书发布”后，下方显示的标题、正文、标签和评分卡图片才会交给小红书；本工具不会代替你完成最终公开发布。',
+    postBack: '返回编辑（保留本次确认）',
+    postSubmit: '去小红书发布',
+    postConfirming: '请核对内容后再继续',
+    postRestored: '已恢复上次未完成的发布确认',
+    postPersisting: '正在保存草稿和待发布内容…',
+    postSubmitting: '正在进入小红书发布流程…',
+    postAccepted: '已进入小红书发布流程；最终是否公开发布由你确认',
+    postCancelled: '已取消；确认内容和评分卡仍完整保留',
+    postFailed: '未能进入发布流程；确认内容仍保留，可重试',
+    postStorageFailed: '无法安全保存草稿或待发布内容，未打开发布流程',
+    postInvalid: '待发布内容无效，请重新生成评分卡',
+    postTruncated: '预填文字已按平台上限缩短，请在继续前确认。',
     footer:
-      '编辑数据仅保存在当前容器缓存，可能被系统清理；不会联网或直接发布笔记。只有点击保存时，PNG 才交给系统相册。',
+      '编辑数据仅保存在当前容器缓存，可能被系统清理；不会联网。保存相册只提交 PNG；只有最终确认发布时，所示文字和 PNG 才交给小红书。',
     templates: '内容模板',
     templateHelp:
       '模板保存在当前小工具本地缓存中，可改名或删除；系统清理数据后无法恢复。封面不会写入模板。',
@@ -185,9 +233,9 @@ const copy = {
     negativeName: 'Deduction name',
     overall: 'Overall comment',
     story: 'Personal story',
-    exportTitle: 'Rating-card preview and album save',
+    exportTitle: 'Rating-card preview, album, and posting',
     exportHelp:
-      'Preview and export use the same production rating-card model and layout. Switch ratios before confirming the image is ready to save.',
+      'Preview, album save, and posting confirmation use the same production PNG. Switch ratios before confirming the exact text and image.',
     generate: 'Generate rating-card PNG',
     saveAlbum: 'Save rating card to album',
     bridgeReady: 'JSBridge available',
@@ -198,8 +246,36 @@ const copy = {
     albumCancelled: 'Save cancelled',
     albumFailed: 'Save failed; draft retained for retry',
     preview: 'Rating-card PNG preview',
+    preparePost: 'Post to Xiaohongshu',
+    postRequiresPreview: 'Generate the rating-card PNG before opening posting confirmation.',
+    postBridgeMissing:
+      'Post publishing is unavailable in this client; PNG generation and album save still work.',
+    postConfirmation: 'Posting confirmation',
+    postHelp:
+      'Confirm the exact text and image to submit. You still make the final public-post decision in Xiaohongshu’s native screen.',
+    postTitle: 'Post title',
+    postContent: 'Post body',
+    postTags: 'Tags (optional)',
+    postTitleCount: 'Title character count: ',
+    postContentCount: 'Body character count: ',
+    postImage: 'Rating card to submit',
+    postPrivacyTitle: 'Submission scope and privacy',
+    postPrivacy:
+      'Editing on this screen remains local. Only after “Continue to Xiaohongshu” will the title, body, tags, and rating-card image shown below be handed to Xiaohongshu. This tool does not complete the final public post for you.',
+    postBack: 'Back to editing (keep confirmation)',
+    postSubmit: 'Continue to Xiaohongshu',
+    postConfirming: 'Review the content before continuing',
+    postRestored: 'Previous unfinished posting confirmation restored',
+    postPersisting: 'Saving the draft and pending post…',
+    postSubmitting: 'Entering Xiaohongshu’s posting flow…',
+    postAccepted: 'Entered Xiaohongshu’s posting flow; you still decide whether to publish',
+    postCancelled: 'Cancelled; confirmation text and rating card remain intact',
+    postFailed: 'Could not enter posting; confirmation content remains available for retry',
+    postStorageFailed: 'Draft or pending post could not be saved; posting was not opened',
+    postInvalid: 'Pending post is invalid; regenerate the rating card',
+    postTruncated: 'Prefilled text was shortened to platform limits. Review it before continuing.',
     footer:
-      'Edits stay in this container cache and may be cleared. The tool does not connect to the network or publish notes. Only an explicit save sends the PNG to the system album.',
+      'Edits stay in this container cache and may be cleared. The tool makes no network requests. Album save submits only the PNG; final posting confirmation hands the shown text and PNG to Xiaohongshu.',
     templates: 'Content templates',
     templateHelp:
       'Templates stay in this MiniTool cache and may be renamed or deleted. System cleanup can remove them. Covers are never stored.',
@@ -236,7 +312,18 @@ let cachedInitialState: InitialState | null = null;
 function initialState(): InitialState {
   if (cachedInitialState) return cachedInitialState;
   try {
-    cachedInitialState = initializeMiniTool(window.localStorage);
+    const initialized = initializeMiniTool(window.localStorage);
+    const pendingPost = loadPendingPostDraft(window.localStorage);
+    cachedInitialState = {
+      ...initialized,
+      pendingPost: pendingPost.status === 'restored' ? pendingPost.draft : null,
+      pendingPostState:
+        pendingPost.status === 'restored'
+          ? 'restored'
+          : pendingPost.status === 'invalid'
+            ? 'invalid'
+            : 'idle',
+    };
   } catch {
     cachedInitialState = {
       locale: 'zh-CN',
@@ -244,6 +331,8 @@ function initialState(): InitialState {
       saveState: 'unavailable',
       templateCatalog: { version: 1, templates: [] },
       templateNotice: 'unavailable',
+      pendingPost: null,
+      pendingPostState: 'idle',
     };
   }
   return cachedInitialState;
@@ -762,17 +851,27 @@ export function MiniToolApp() {
   const [templateNotice, setTemplateNotice] = useState<TemplateNotice>(initial.templateNotice);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [albumState, setAlbumState] = useState<AlbumState>('idle');
-  const [preview, setPreview] = useState<string | null>(null);
+  const [postDraft, setPostDraft] = useState<PostNoteDraft | null>(initial.pendingPost);
+  const [postState, setPostState] = useState<PostState>(initial.pendingPostState);
+  const [postTruncation, setPostTruncation] = useState<PostNoteTruncation>({
+    title: false,
+    content: false,
+  });
+  const [preview, setPreview] = useState<string | null>(
+    initial.pendingPost?.imageDataUris[0] ?? null,
+  );
   const [ratio, setRatio] = useState<CardRatio>('4:5');
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [coverState, setCoverState] = useState<CoverState>('idle');
   const [coverInfo, setCoverInfo] = useState<CompressedCover | null>(null);
   const coverRequest = useRef(0);
+  const postPanel = useRef<HTMLElement | null>(null);
   const viewportBaseline = useRef({ width: window.innerWidth, height: window.innerHeight });
   const t = copy[locale];
   const result = useMemo(() => calculateRating(rating), [rating]);
   const score = result.status === 'ready' ? result.score100 : null;
   const platform = useMemo(() => createMiniToolPlatformServices(window), []);
+  const postBridgeAvailable = platform.isPostNoteBridgeAvailable();
 
   useEffect(() => {
     const savingTimer = window.setTimeout(() => setSaveState('saving'), 0);
@@ -1037,6 +1136,79 @@ export function MiniToolApp() {
       setAlbumState('failed');
     }
   };
+  const openPostConfirmation = () => {
+    if (!preview || !postBridgeAvailable) return;
+    const content = [rating.overallComment.trim(), rating.personalStory.trim()]
+      .filter((value) => value.length > 0)
+      .join('\n\n');
+    const built = buildPostNotePayload({
+      title: rating.work.title,
+      content,
+      imageDataUris: [preview],
+    });
+    if (!built.ok) {
+      setPostState('invalid');
+      return;
+    }
+
+    setPostDraft({
+      ...(built.payload.title === undefined ? {} : { title: built.payload.title }),
+      ...(built.payload.content === undefined ? {} : { content: built.payload.content }),
+      ...(built.payload.tags === undefined ? {} : { tags: built.payload.tags }),
+      imageDataUris: built.payload.mediaInfo.image_resources.map((resource) => resource.url),
+    });
+    setPostTruncation(built.truncation);
+    setPostState('confirming');
+    window.setTimeout(() => postPanel.current?.scrollIntoView(false), 0);
+  };
+  const updatePostText = (field: 'title' | 'content' | 'tags', value: string) => {
+    if (!postDraft) return;
+    const limit =
+      field === 'title'
+        ? POST_NOTE_LIMITS.titleCharacters
+        : field === 'content'
+          ? POST_NOTE_LIMITS.contentCharacters
+          : null;
+    const limited = limit === null ? value : limitPostNoteText(value, limit);
+    if (field === 'title' || field === 'content') {
+      setPostTruncation((current) => ({
+        ...current,
+        [field]: limit !== null && countPostNoteCharacters(value) > limit,
+      }));
+    }
+    setPostDraft((current) => (current ? { ...current, [field]: limited } : current));
+    if (postState !== 'submitting' && postState !== 'persisting') setPostState('confirming');
+  };
+  const submitPost = async () => {
+    if (!postDraft || !postBridgeAvailable) return;
+    const built = buildPostNotePayload(postDraft);
+    if (!built.ok) {
+      setPostState('invalid');
+      return;
+    }
+
+    setPostState('persisting');
+    const workspaceSaved = saveMiniToolWorkspace(window.localStorage, {
+      locale,
+      rating: cloneRatingWithoutCover(rating),
+    });
+    const pendingSaved = savePendingPostDraft(window.localStorage, postDraft);
+    setSaveState(workspaceSaved ? 'saved' : 'failed');
+    if (!workspaceSaved || pendingSaved !== 'saved') {
+      setPostState('storage-failed');
+      return;
+    }
+
+    setPostState('submitting');
+    const submitted = await platform.submitPostNote(built.payload);
+    setPostState(
+      submitted.status === 'accepted'
+        ? 'accepted'
+        : submitted.status === 'cancelled'
+          ? 'cancelled'
+          : 'failed',
+    );
+  };
   const albumText =
     albumState === 'idle'
       ? platform.isAlbumBridgeAvailable()
@@ -1051,6 +1223,24 @@ export function MiniToolApp() {
             : albumState === 'cancelled'
               ? t.albumCancelled
               : t.albumFailed;
+  const postText =
+    postState === 'restored'
+      ? t.postRestored
+      : postState === 'persisting'
+        ? t.postPersisting
+        : postState === 'submitting'
+          ? t.postSubmitting
+          : postState === 'accepted'
+            ? t.postAccepted
+            : postState === 'cancelled'
+              ? t.postCancelled
+              : postState === 'failed'
+                ? t.postFailed
+                : postState === 'storage-failed'
+                  ? t.postStorageFailed
+                  : postState === 'invalid'
+                    ? t.postInvalid
+                    : t.postConfirming;
   const templateText =
     templateNotice === 'seeded'
       ? t.templateSeeded
@@ -1082,7 +1272,7 @@ export function MiniToolApp() {
     <main className="app-shell" data-testid="minitool-shell">
       <header className="hero">
         <div>
-          <p className="eyebrow">XDRATE MUSIC · MINI TOOL v0.3.0</p>
+          <p className="eyebrow">XDRATE MUSIC · MINI TOOL v0.3.1 M2</p>
           <h1>{t.product}</h1>
           <p className="subtitle">{t.subtitle}</p>
         </div>
@@ -1373,6 +1563,13 @@ export function MiniToolApp() {
           <button type="button" className="primary" onClick={() => void saveAlbum()}>
             {t.saveAlbum}
           </button>
+          <button
+            type="button"
+            disabled={!preview || !postBridgeAvailable}
+            onClick={openPostConfirmation}
+          >
+            {t.preparePost}
+          </button>
         </div>
         <div className="album-status" role="status" aria-live="polite">
           {albumText}
@@ -1384,6 +1581,89 @@ export function MiniToolApp() {
           </div>
         ) : null}
       </section>
+      {!postBridgeAvailable || !preview ? (
+        <div className="post-availability" role="status">
+          {!postBridgeAvailable ? t.postBridgeMissing : t.postRequiresPreview}
+        </div>
+      ) : null}
+      {postDraft && postState !== 'idle' ? (
+        <section
+          ref={postPanel}
+          className="panel post-panel"
+          aria-labelledby="post-confirmation-title"
+          data-testid="post-confirmation"
+        >
+          <h2 id="post-confirmation-title">{t.postConfirmation}</h2>
+          <p className="panel-help">{t.postHelp}</p>
+          <label className="field">
+            <span>{t.postTitle}</span>
+            <input
+              value={postDraft.title ?? ''}
+              aria-describedby="post-title-count"
+              onChange={(event) => updatePostText('title', event.target.value)}
+            />
+          </label>
+          <p id="post-title-count" className="character-count">
+            {t.postTitleCount}
+            {countPostNoteCharacters(postDraft.title ?? '')} / {POST_NOTE_LIMITS.titleCharacters}
+          </p>
+          <label className="field">
+            <span>{t.postContent}</span>
+            <textarea
+              rows={6}
+              value={postDraft.content ?? ''}
+              aria-describedby="post-content-count"
+              onChange={(event) => updatePostText('content', event.target.value)}
+            />
+          </label>
+          <p id="post-content-count" className="character-count">
+            {t.postContentCount}
+            {countPostNoteCharacters(postDraft.content ?? '')} /{' '}
+            {POST_NOTE_LIMITS.contentCharacters}
+          </p>
+          <label className="field">
+            <span>{t.postTags}</span>
+            <input
+              value={postDraft.tags ?? ''}
+              onChange={(event) => updatePostText('tags', event.target.value)}
+            />
+          </label>
+          {postTruncation.title || postTruncation.content ? (
+            <div className="post-warning" role="status">
+              {t.postTruncated}
+            </div>
+          ) : null}
+          <div className="post-image-block">
+            <h3>{t.postImage}</h3>
+            <img className="png-preview" src={postDraft.imageDataUris[0]} alt={t.postImage} />
+          </div>
+          <aside className="privacy-notice" aria-labelledby="post-privacy-title">
+            <h3 id="post-privacy-title">{t.postPrivacyTitle}</h3>
+            <p>{t.postPrivacy}</p>
+          </aside>
+          <div className="post-status" role="status" aria-live="polite">
+            {postText}
+          </div>
+          <div className="actions post-actions">
+            <button type="button" onClick={() => setPostState('idle')}>
+              {t.postBack}
+            </button>
+            <button
+              type="button"
+              className="post-primary"
+              disabled={
+                postState === 'persisting' ||
+                postState === 'submitting' ||
+                postState === 'accepted' ||
+                !postBridgeAvailable
+              }
+              onClick={() => void submitPost()}
+            >
+              {t.postSubmit}
+            </button>
+          </div>
+        </section>
+      ) : null}
       <footer>
         <p>{t.footer}</p>
         <p>music-linear-100-v4 · MiniTool content template v1</p>

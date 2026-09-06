@@ -58,6 +58,7 @@ button:active {
 .save-status,
 .score-panel,
 .panel,
+.post-availability,
 footer {
   width: 100%;
   max-width: 760px;
@@ -426,6 +427,65 @@ h1 {
   color: #334155;
   background: #f1f5f9;
   font-size: 13px;
+}
+.post-availability {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.post-panel {
+  border-color: #c7d2fe;
+}
+.character-count {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  text-align: right;
+}
+.post-warning,
+.post-status {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  color: #713f12;
+  background: #fffbeb;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.post-status {
+  color: #3730a3;
+  background: #eef2ff;
+}
+.post-image-block {
+  margin-top: 16px;
+}
+.post-image-block h3,
+.privacy-notice h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.privacy-notice {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  background: #f8faff;
+}
+.privacy-notice p {
+  margin: 7px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.actions .post-primary {
+  border-color: #dc2626;
+  color: #fff;
+  background: #dc2626;
 }
 .preview-block {
   margin-top: 16px;
