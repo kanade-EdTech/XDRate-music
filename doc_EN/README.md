@@ -1,6 +1,6 @@
 # XDRate Music Development Documentation
 
-Status: V0.1 implementation closure / V0.2 M4 engineering complete, public RC externally gated / V0.3.0 MiniTool M4 source freeze complete, RC.1 awaiting real-container acceptance / V0.3.1 M2 engineering complete<br>
+Status: V0.1 implementation closure / V0.2 M4 engineering complete, public RC externally gated / V0.3.0 MiniTool M4 source freeze complete, RC.1 awaiting real-container acceptance / V0.3.1 M4 engineering candidate complete, device-gated<br>
 Last updated: 2026-09-06
 
 ## 1. Purpose
@@ -50,6 +50,7 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 | [31 V0.3.1 Xiaohongshu Post Publishing Integration Plan](./31_V0.3.1_XIAOHONGSHU_POST_PUBLISHING_INTEGRATION_PLAN.md)       | `postNote` confirmation, core algorithm, and release gates               | Product, engineering, QA       |
 | [32 V0.3.1 M1 Post Publishing Bridge Execution Log](./32_V0.3.1_M1_POST_PUBLISHING_BRIDGE_EXECUTION_LOG.md)                 | Independent detection, one invocation, and outcome classification        | Engineering, QA, release       |
 | [33 V0.3.1 M2 Post Confirmation and Recovery Log](./33_V0.3.1_M2_POST_CONFIRMATION_AND_RECOVERY_EXECUTION_LOG.md)           | Bilingual confirmation, limits, persistence, and cancellation recovery   | Product, engineering, QA       |
+| [34 V0.3.1 M4 Candidate and Merged Acceptance Log](./34_V0.3.1_M4_CANDIDATE_AND_MERGED_ACCEPTANCE_EXECUTION_LOG.md)         | Skipped standalone M3, exact RC.1, merged gates, and device matrix       | Product, QA, release           |
 | [Manual Product Conclusions](./MANUAL_PRODUCT_CONCLUSIONS.md)                                                               | Sample review conclusions, merged reasons, publisher and platform ADRs   | Everyone                       |
 
 ## 4. Requirement terms
@@ -64,9 +65,9 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 - Data: Archive Schema v2, browser-local storage plus JSON import/export, zero backend
 - Card Layout: 11 ratios, 4 layout families, content-aware multi-state adaptive layout, deterministic fallback overflow gate
 - Image export: `html-to-image` (2× physical resolution PNG)
-- Quality Assurance: Vitest 158/158, MiniTool-focused unit tests 39/39, Rust 8/8, Playwright cross-browser 48/48, MiniTool E2E 20/20, card visual 3/3, desktop visual 5/5, and visual handover 2/2 pass
+- Quality Assurance: Vitest 158/158, MiniTool-focused unit tests 39/39, Rust 8/8, Playwright cross-browser 48/48, MiniTool E2E 22/22, card visual 3/3, desktop visual 5/5, and visual handover 2/2 pass
 - License: MIT; user content is subject to the disclaimer
 - Language: Fully supports Simplified Chinese and English (i18n message key driven)
 - Release: Windows 10/11 x64; public packages require Authenticode + RFC 3161 timestamp; `0.2.0` updates manually
 - Desktop status: M4 security, offline/navigation, automation, and docs are complete. The NSIS candidate remains unsigned with a development icon; clean Windows 10/11 install and screen-reader checks remain
-- MiniTool status: v0.3.0 M4/RC.1 remains frozen and passes independent dist/final-ZIP audits, byte-parity verification, and the 2 MiB target; v0.3.1 has completed the `postNote` M2 bilingual confirmation, character limits, privacy disclosure, pre-invocation persistence, and cancellation recovery. M3 closed-loop acceptance, Android 8.1/WebView 61, current Android, iOS 18.4+, MiniTool screen-reader, and exact-package permission matrices still block public release
+- MiniTool status: v0.3.0 M4/RC.1 remains frozen. v0.3.1 skips a standalone M3 by product decision and absorbs its gates into M4 automation. RC.1 was built from a clean commit and passes independent dist/ZIP audit and byte-parity verification; Android 8.1/WebView 61, current Android, iOS 18.4+, real-device screen-reader, and exact-package permission matrices still block public release
