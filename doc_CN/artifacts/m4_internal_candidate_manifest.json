@@ -1,0 +1,24 @@
+{
+  "product": "XDRate Music",
+  "version": "0.2.0",
+  "channel": "internal-unsigned",
+  "platform": "windows-x86_64",
+  "builtAt": "2026-09-05",
+  "artifact": {
+    "fileName": "XDRate Music_0.2.0_x64-setup.exe",
+    "sizeBytes": 2058311,
+    "sha256": "4407FB28C37171C286D790588AEE5CFED68CCAC683FCEFB314B673E0C2E357C3",
+    "authenticodeStatus": "NotSigned"
+  },
+  "source": {
+    "head": "aa5aa87e41fe792da49dcdb601a43862040e3d51",
+    "workingTreeFrozen": true,
+    "releaseEligible": false,
+    "reason": "Source is frozen, but public RC still requires final icons, signing, and clean Windows install evidence."
+  },
+  "security": {
+    "npmProductionVulnerabilities": 0,
+    "rustVulnerabilities": 0,
+    "rustAllowedWarnings": 17
+  }
+}

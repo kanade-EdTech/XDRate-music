@@ -59,6 +59,27 @@ web_modules/
 # Optional REPL history
 .node_repl_history
 
+# Vite build output
+dist/
+dist-minitool/
+artifacts/minitool/
+src-tauri/target/
+.tauri-tmp/
+.tauri-localappdata/
+
+# Test output
+coverage/
+
+# Playwright output
+playwright-report/
+test-results/
+
+# Editor-local state
+doc_CN/.obsidian/
+
+# Generated Tauri schemas
+src-tauri/gen/schemas/
+
 # Output of 'npm pack'
 *.tgz
 

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="XDRate Music development icon">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5" />
+      <stop offset="1" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#background)" />
+
+  <g fill="#fff">
+    <!-- Letter X -->
+    <path d="M120 160 l50 80 l-50 80 h45 l30 -50 l30 50 h45 l-50 -80 l50 -80 h-45 l-30 50 l-30 -50 z" transform="matrix(1.15 0 0 1.15 -20 -30)" />
+
+    <!-- Letter D intertwined with a Musical Note -->
+    <!-- Stem of the note / Vertical bar of D -->
+    <rect x="290" y="150" width="28" height="175" rx="5" />
+
+    <!-- Note head at the bottom of the stem -->
+    <ellipse cx="265" cy="325" rx="45" ry="32" transform="rotate(-20 265 325)" />
+
+    <!-- Outer curve of the D, styled like a note flag tapering at the bottom to a sharp point -->
+    <path d="M 318 150
+             C 410 150, 455 190, 455 240
+             C 455 295, 390 325, 318 325
+             C 380 315, 410 280, 410 240
+             C 410 195, 380 185, 318 185
+             Z" />
+  </g>
+</svg>

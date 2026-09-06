@@ -1,0 +1,9 @@
+[[permission]]
+identifier = "allow-native-files"
+description = "Allows the main window to open and save XDRate archives and export PNG files through native, user-mediated dialogs."
+commands.allow = [
+  "native_open_archive",
+  "native_save_archive_as",
+  "native_save_archive",
+  "native_save_png"
+]
