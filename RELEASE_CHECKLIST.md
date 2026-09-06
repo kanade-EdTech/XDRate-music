@@ -53,7 +53,7 @@
 - [ ] Archive a successful remote CI run for the frozen source commit.
 - [ ] Run bilingual Narrator or NVDA smoke testing on the final M4 candidate.
 - [ ] Run install, first launch, in-place upgrade, uninstall, and data-retention checks on clean Windows 10 x64 and Windows 11 x64 snapshots.
-- [ ] Freeze all source files in Git before producing a public release manifest.
+- [x] Freeze all source files in Git before producing the RC.1 device-acceptance manifest.
 
 ## Xiaohongshu MiniTool v0.3.0 gates
 

@@ -156,6 +156,7 @@ async function main() {
   );
   const sourceRoot = resolve(process.argv[3] ?? 'dist-minitool');
   const manifestPath = process.argv[4] ? resolve(process.argv[4]) : null;
+  const channel = process.argv[5] ?? 'm4-preflight';
   const zip = await readFile(zipPath);
   if (zip.length > MAX_ZIP_BYTES) throw new Error(`ZIP exceeds 10 MiB: ${zip.length} bytes.`);
   const entries = readStoredEntries(zip);
@@ -187,7 +188,7 @@ async function main() {
     schemaVersion: 1,
     product: 'XDRate Music MiniTool',
     version: '0.3.0',
-    channel: 'm4-preflight',
+    channel,
     package: basename(zipPath),
     sha256: checksum,
     zipBytes: zip.length,
@@ -208,7 +209,9 @@ async function main() {
     knownLimitations: [
       'Chrome 61 / Android 8.1 real-device compatibility is not yet recorded.',
       'Current Android and iOS 18.4+ exact-package acceptance is not yet recorded.',
-      'The source tree must be clean and committed before promotion to a public candidate.',
+      ...(sourceDirty
+        ? ['The source tree must be clean and committed before promotion to a public candidate.']
+        : []),
     ],
   };
   if (manifestPath) await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');

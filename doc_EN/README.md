@@ -1,6 +1,6 @@
 # XDRate Music Development Documentation
 
-Status: V0.1 implementation closure / V0.2 M4 engineering complete, public RC externally gated / V0.3.0 MiniTool M4 static preflight complete, public RC gated by source freeze and real-container acceptance<br>
+Status: V0.1 implementation closure / V0.2 M4 engineering complete, public RC externally gated / V0.3.0 MiniTool M4 source freeze complete, RC.1 awaiting real-container acceptance<br>
 Last updated: 2026-09-05
 
 ## 1. Purpose
@@ -66,4 +66,4 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 - Language: Fully supports Simplified Chinese and English (i18n message key driven)
 - Release: Windows 10/11 x64; public packages require Authenticode + RFC 3161 timestamp; `0.2.0` updates manually
 - Desktop status: M4 security, offline/navigation, automation, and docs are complete. The NSIS candidate remains unsigned with a development icon; clean Windows 10/11 install and screen-reader checks remain
-- MiniTool status: the M4 static preflight package passes independent dist/final-ZIP audits, byte-parity verification, and the 2 MiB target; Chromium `file://` automation passes 16/16. The source tree remains uncommitted, while Android 8.1/WebView 61, current Android, iOS 18.4+, MiniTool screen-reader, and exact-package album-permission matrices still block a public RC
+- MiniTool status: M4 source is frozen; the RC.1 device-acceptance package passes independent dist/final-ZIP audits, byte-parity verification, and the 2 MiB target; Chromium `file://` automation passes 16/16. Android 8.1/WebView 61, current Android, iOS 18.4+, MiniTool screen-reader, and exact-package album-permission matrices still block public release

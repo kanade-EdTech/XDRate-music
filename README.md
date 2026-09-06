@@ -41,7 +41,7 @@ npm run minitool:pack
 npm run minitool:pack:m4
 ```
 
-`minitool:pack:m4` 生成 M4 预检 ZIP、SHA-256 和机器可读清单，并验证最终 ZIP 与已审计目录逐字节一致。该包仍不是公开候选：必须先冻结源码，再使用同一个干净提交生成的 ZIP 完成官方 PC 模拟器、Android 8.1/WebView 61、当前 Android 和 iOS 18.4+ 小红书容器验收。
+`minitool:pack:m4` 生成 M4 预检包；源码冻结后使用 `npm run minitool:pack:rc` 生成 RC.1 送测 ZIP、SHA-256 和机器可读清单，并验证最终 ZIP 与已审计目录逐字节一致。RC.1 在完成官方 PC 模拟器、Android 8.1/WebView 61、当前 Android 和 iOS 18.4+ 小红书容器同包验收前不得公开发布。
 
 ## 质量检查
 
