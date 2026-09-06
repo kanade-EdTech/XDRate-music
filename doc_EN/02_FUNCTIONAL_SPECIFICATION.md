@@ -127,9 +127,23 @@ score100    = 67.0
 
 ## 7. Templates
 
-A template contains its name, mode, axes, negative item definitions, card display settings, timestamps, and schema version. It excludes metadata, cover, review text, and scores.
+A cross-platform rating-structure template contains its name, mode, axes, negative item definitions, card display settings, timestamps, and schema version. It excludes metadata, cover, review text, and scores.
 
-When applying a template, users may preserve scores by matching stable IDs or normalized names. The safe default clears scores and loads the new structure.
+When applying a structure template, users may preserve scores by matching stable IDs or normalized names. The safe default clears scores and loads the new structure.
+
+### 7.1 MiniTool content templates
+
+The MiniTool has a separate content-template concept and must not reuse the structure-template format or storage key. A content template stores current work metadata, mode, axes, whole-star scores, importance levels, axis reasons, deductions, overall comment, and story. It excludes cover binaries, Blob URLs, UI locale, and temporary export output. `coverDataUrl` is always `null`; users select a local cover again after applying a template.
+
+- The MiniTool continues to autosave all current input as the recent draft and restores it after an ordinary close/reopen.
+- Users can save the current input as a content template and apply, rename, or delete every content template. Replacing a same-name template and deletion require confirmation.
+- “海棠仙” is only an ordinary content template created during first initialization. After creation it has the same permissions as any user template and may be applied, renamed, replaced, or deleted.
+- When the template catalog is initialized for the first time, write “海棠仙,” use it as the initial draft, and record the seed version. A valid recent draft always wins afterward. If initialization has already occurred but no valid draft exists, create a blank Simple draft and never recreate a deleted or renamed “海棠仙.” Clearing all MiniTool local data starts a new first initialization.
+- A damaged draft is quarantined and reported without overwriting the template catalog. If storage is unavailable, the app may load “海棠仙” startup content in memory but must expose an unsaved state.
+- Local content templates survive ordinary closes and reopens, but remain platform-clearable local cache. They are not guaranteed after uninstall, clearing MiniTool data, or platform storage reclamation.
+- The first release stores at most 20 content templates including the initially created “海棠仙.” A trimmed name is 1–40 characters, and the serialized catalog is at most 512 KiB. Count, size, or quota failure rejects the new write while preserving the active draft and existing catalog.
+
+First initialization creates this exact “海棠仙” startup template: title “海棠仙,” artist “纯白；星尘,” album “中华少女,” year “2004,” Simple mode; Artistic Quality 8 stars (reason: “采用了高几个八度的离调”), Listening Experience 7 stars (reason: “当时全新出炉的星尘V4”), and Personal Preference 9 stars (reason: “禁忌组99”), all at LV3; no deductions, an empty overall comment, and story “17年网易云从甲铁城的配乐心动到了《白·棠·彩》，注意到了这三首歌”. Its aggregate must be `80.0 / 100`. It receives no special protection after creation.
 
 ## 8. JSON import/export
 

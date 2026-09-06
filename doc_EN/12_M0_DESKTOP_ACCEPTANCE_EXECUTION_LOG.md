@@ -37,7 +37,7 @@ Playwright cannot spawn browsers in restricted sandboxes (`spawn EPERM`); once l
 | Initial platform matrix                                              | Confirmed              | Initial release supports Windows 10/11 x64 only; other architectures and platforms are outside the initial supported set                              |
 | Signing and update policy                                            | Confirmed              | Public packages require OV/Authenticode plus RFC 3161 timestamp; `0.2.0` updates manually through GitHub Releases and contains no updater permission  |
 
-Real iOS Safari, Android Chrome, and mobile-touch acceptance move to V0.3. They do not block the current desktop release or the V0.2 desktop application.
+Standalone-mobile acceptance on real iOS Safari, Android Chrome, and touch moves to V0.4. It does not block the current desktop release or V0.2. V0.3.0 Xiaohongshu MiniTool has separate container and real-device gates.
 
 ## 3. Verified regression scope
 

@@ -34,4 +34,4 @@ The card footer used `pt-3` while some layouts reserved a fixed footer track. `d
 - Mouse, keyboard, screen-reader, and high-DPI smoke tests were completed in the Windows 10/11 x64 target desktop scope.
 - Real-cover, all-11-ratio, and maximum-legal-text PNGs were manually inspected.
 
-On 2026-08-31, the user reported no issues in manual testing; WP-5 and M0 desktop acceptance pass. Real iOS Safari, Android Chrome, and mobile-touch acceptance move to v0.3 and do not block the current desktop acceptance.
+On 2026-08-31, the user reported no issues in manual testing; WP-5 and M0 desktop acceptance pass. Standalone-mobile acceptance on real iOS Safari, Android Chrome, and touch moves to v0.4 and does not block current desktop acceptance; v0.3.0 Xiaohongshu MiniTool uses its own container and real-device matrix.

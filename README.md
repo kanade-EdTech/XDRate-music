@@ -2,6 +2,13 @@
 
 XDRate Music 是一款开源、离线优先的多维音乐评价与图片生成工具。它不会注册账号、上传评价或加载远程字体；作品信息、评分、文字和封面只保存在当前本地运行环境，直到用户主动导出 JSON 或 PNG。
 
+## 版本路线
+
+- `0.1.x`：Web MVP。
+- `0.2.x`：Windows 10/11 x64 桌面版。
+- `0.3.0`：小红书小工具离线 ZIP；M3 已接入正式评分卡、11 种比例、预览/导出同源渲染与相册保存重试，官方容器与真机余项待验收。详见[专项开发计划](./doc_CN/23_V0.3.0_小红书小工具开发计划.md)和[M3 执行记录](./doc_CN/29_V0.3.0_M3_评分卡与相册保存执行记录.md)。
+- `0.4.x`：原 v0.3 独立移动版计划（PWA / Tauri Mobile 评估）顺延至此版本。
+
 ## 本地运行
 
 ```bash
@@ -21,6 +28,20 @@ npm run desktop:build
 ```
 
 `desktop:dev` 启动桌面开发窗口；`desktop:build` 生成 `src-tauri/target/release/bundle/nsis/XDRate Music_0.2.0_x64-setup.exe`。桌面版现已支持系统对话框打开、保存、另存 XDRate 存档及保存 PNG；浏览器版仍使用下载式工作流。当前候选包未签名且使用开发图标，不可作为公开正式包发布。
+
+## 小红书小工具 v0.3.0 M4 预检版
+
+```bash
+npm run minitool:dev
+npm run minitool:build
+npm run minitool:audit
+npm run minitool:test
+npm run minitool:test:e2e
+npm run minitool:pack
+npm run minitool:pack:m4
+```
+
+`minitool:pack:m4` 生成 M4 预检 ZIP、SHA-256 和机器可读清单，并验证最终 ZIP 与已审计目录逐字节一致。该包仍不是公开候选：必须先冻结源码，再使用同一个干净提交生成的 ZIP 完成官方 PC 模拟器、Android 8.1/WebView 61、当前 Android 和 iOS 18.4+ 小红书容器验收。
 
 ## 质量检查
 

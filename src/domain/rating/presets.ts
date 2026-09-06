@@ -15,8 +15,21 @@ const axisPresets: Record<Exclude<RatingMode, 'custom'>, readonly string[]> = {
   professional: ['填词 / 立意', '作曲 / 编曲', '演唱 / 调音 / 混音', '创新', '其他'],
 };
 
+let fallbackIdSequence = 0;
+
 function createId(prefix: string): string {
-  return `${prefix}-${crypto.randomUUID()}`;
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}-${crypto.randomUUID()}`;
+  }
+
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    const values = new Uint32Array(2);
+    crypto.getRandomValues(values);
+    return `${prefix}-${values[0].toString(36)}${values[1].toString(36)}`;
+  }
+
+  fallbackIdSequence += 1;
+  return `${prefix}-${Date.now().toString(36)}-${fallbackIdSequence.toString(36)}`;
 }
 
 export function createWorkMetadata(): WorkMetadata {

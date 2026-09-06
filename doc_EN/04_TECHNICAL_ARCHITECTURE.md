@@ -143,8 +143,22 @@ The main branch or release tag also runs critical Playwright flows across browse
 ## 10. Later platforms
 
 - v0.2: wrap the existing Web UI in Tauri; M1 desktop shell/platform boundaries are complete, and M2 adds native filesystem adapters.
-- v0.3: evaluate Tauri Mobile first; consider Flutter only if reuse, plugins, or UX are inadequate.
+- v0.3.0: add a dedicated Xiaohongshu MiniTool entry and offline-ZIP pipeline; reuse pure domain/card models while isolating the container behind Chrome 61 classic scripts, compatibility CSS, relative resources, and a narrow `window.xhs.miniTool` adapter.
+- v0.4: evaluate responsive PWA and Tauri Mobile first; consider Flutter only if reuse, plugins, or UX are inadequate.
 - Anime and games reuse the generic rating engine with separate presets, rules, and entry points.
+
+### 10.1 V0.3.0 Xiaohongshu MiniTool boundary
+
+The MiniTool build shares `domain`, Archive v2 types, and `CardViewModel` with Web/Tauri, but has a separate entry, platform-service implementation, and output directory. It imports neither Tauri nor browser-download/external-navigation behavior. Native capability is limited to explicit user actions that call `writeTempFile` and `saveImageToPhotosAlbum`; the first release excludes `postNote` by default.
+
+```text
+React feature → MiniToolPlatformServices
+              ├─ local cache → localStorage / IndexedDB (non-permanent)
+              ├─ media input → image/video-capable system picker (images only here)
+              └─ image save → writeTempFile → saveImageToPhotosAlbum
+```
+
+The release ZIP has one root `index.html` entry and allowed relative resources only. Final JavaScript is external classic script executable by ES2017 / Chrome 61. Network, Workers, WASM, remote resources, external navigation, and arbitrary downloads are excluded from the dependency graph. See the [V0.3.0 Xiaohongshu MiniTool Development Plan](./23_V0.3.0_XIAOHONGSHU_MINITOOL_DEVELOPMENT_PLAN.md) for build, test, performance, and release contracts.
 
 ## 11. V0.2 M1 desktop boundary
 

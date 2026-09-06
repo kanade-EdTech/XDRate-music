@@ -21,7 +21,7 @@
 - [ ] Test keyboard-only creation, template application, JSON import/export, and PNG download.
 - [ ] Perform a screen-reader smoke test on the main editing flow.
 - [ ] Inspect square, portrait, and wide cards with long Chinese and English text.
-- [ ] For v0.3 only: test iOS Safari and Android Chrome on real devices. This does not block the current desktop release.
+- [ ] For v0.4 standalone mobile only: test iOS Safari and Android Chrome on real devices. This does not block the current desktop release.
 - [ ] Confirm that a storage-quota failure offers JSON backup without claiming the draft was saved.
 - [ ] Verify version number, license, changelog, privacy notice, schema version, and algorithm version are consistent.
 
@@ -54,3 +54,16 @@
 - [ ] Run bilingual Narrator or NVDA smoke testing on the final M4 candidate.
 - [ ] Run install, first launch, in-place upgrade, uninstall, and data-retention checks on clean Windows 10 x64 and Windows 11 x64 snapshots.
 - [ ] Freeze all source files in Git before producing a public release manifest.
+
+## Xiaohongshu MiniTool v0.3.0 gates
+
+- [x] Build an offline ZIP with exactly one root `index.html`, relative packaged resources, allowed extensions only, and no wrapper directory. (M4 preflight exact-ZIP verification)
+- [x] Verify final JavaScript is external classic ES2017/Chrome 61-compatible output with no ESM, inline script, Worker, WASM, or dynamic execution. (static/build evidence; old-WebView runtime gate remains below)
+- [x] Scan the final artifact for remote URLs, network APIs, external navigation, unsupported device APIs, source maps, and build/test files.
+- [x] Keep the ZIP at or below the 2 MiB project target and always below the 10 MiB hard platform limit. (242,650-byte initial M4 preflight; final hash recorded in M4 log)
+- [x] Verify the PNG Data URI → `writeTempFile` → `saveImageToPhotosAlbum` path under explicit user gesture, including deny/cancel/retry behavior. (automated contract evidence)
+- [x] Verify one-to-twelve positive-item add/remove, Custom-mode persistence, unrated exclusion, and neutral user-facing scoring copy in both locales.
+- [x] Replace the clearly labeled M2.1 chain-test PNG with the formal eleven-ratio card in M3 before any public candidate is approved.
+- [ ] Test the exact ZIP in the Xiaohongshu PC simulator, Android 8.1/Chrome-WebView 61 baseline, current Android, and iOS 18.4+ real-device containers.
+- [ ] Record the ZIP SHA-256, source commit, file manifest, device/app versions, privacy boundary, and known limitations.
+- [x] Keep direct `postNote` publishing disabled unless `V03-DEC-01` is explicitly approved and its separate privacy/acceptance gates pass.

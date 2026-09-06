@@ -77,7 +77,7 @@ interface MusicRating {
 }
 ```
 
-`artistLabel` and `albumLabel` use three-state semantics: `null` selects the current locale's “Artist / 艺术家” or “Album / 专辑” default for the editor, while the card shows only the value; a non-empty string that does not equal a default in any supported locale is a custom label that renders as “label: value”; an empty string explicitly omits the label and also shows only its value. The editor normalizes a re-entered localized default to `null`, while card rendering also filters default-label strings persisted by older drafts. `extraFields` contains up to 6 entries, with a 24-character label and a 120-character value; non-empty values render as “label: value.” These properties persist with drafts and full archives. Templates exclude work metadata and therefore carry none of them.
+`artistLabel` and `albumLabel` use three-state semantics: `null` selects the current locale's “Artist / 艺术家” or “Album / 专辑” default for the editor, while the card shows only the value; a non-empty string that does not equal a default in any supported locale is a custom label that renders as “label: value”; an empty string explicitly omits the label and also shows only its value. The editor normalizes a re-entered localized default to `null`, while card rendering also filters default-label strings persisted by older drafts. `extraFields` contains up to 6 entries, with a 24-character label and a 120-character value; non-empty values render as “label: value.” These properties persist with drafts and full archives. Rating-structure templates exclude work metadata, while MiniTool content templates store the full cover-free snapshot specified in section 4.1.
 
 ## 3. Full archive
 
@@ -121,6 +121,38 @@ interface RatingTemplateV2 {
 ```
 
 On load, positive scores start at `0` (unrated), negative scores at 0, and all reasons/body text are empty.
+
+### 4.1 MiniTool content-template format
+
+```ts
+interface MiniToolContentTemplateV1 {
+  format: 'xdrate-music-minitool-content-template';
+  schemaVersion: 1;
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  rating: MusicRatingDraft; // work.coverDataUrl must be null
+}
+
+interface MiniToolContentTemplateCatalogV1 {
+  version: 1;
+  templates: MiniToolContentTemplateV1[];
+}
+
+interface MiniToolContentTemplateSeedStateV1 {
+  version: 1;
+  seeded: true;
+}
+```
+
+- The recent draft remains at `xdrate.music.minitool.workspace.v1`; the content-template catalog uses `xdrate.music.minitool.content-templates.v1`; one-time seed state uses `xdrate.music.minitool.content-template-seed.v1`. Validate and fail all three independently so one damaged value cannot erase the others.
+- The versioned “海棠仙” seed comes from a source constant. When no valid seed state exists, copy it under a stable ID into an ordinary catalog entry, then write seed state only after the catalog write succeeds. It may then be renamed, replaced, or deleted like any other template; deletion never clears seed state. If the stable seed ID already exists but the marker is missing, repair only the marker and do not duplicate the entry.
+- The catalog contains at most 20 entries including the initial “海棠仙,” uses 1–40 character names, and serializes to no more than 512 KiB. IDs use the existing Chrome 61-compatible fallback and timestamps are ISO 8601 UTC.
+- Saving deep-copies the current `MusicRatingDraft` and forces `work.coverDataUrl = null`. Loading reruns strict `MusicRatingDraft` validation and does not trust local `format`, version, seed name, or seed-marker payload.
+- Applying a content template replaces the current content draft; explicit apply, same-name replacement, and deletion require confirmation. Automatic application during first initialization does not.
+- Initialization reads a valid recent draft first. Without valid seed state, the catalog still receives “海棠仙,” but that entry becomes the startup draft only when no valid recent draft exists. With valid seed state but no valid recent draft, create a blank Simple draft and never recreate a renamed or deleted seed entry. A damaged catalog with valid seed state also must not trigger reseeding.
+- The “海棠仙” seed fixture is 纯白；星尘 / 中华少女 / 2004, Simple mode, three LV3 axes scored 8/7/9 with the frozen reasons, no deductions, empty overall comment, and the frozen story. Its aggregate assertion is 80.0.
 
 ## 5. Preferences
 

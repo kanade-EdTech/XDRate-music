@@ -14,8 +14,10 @@
   },
   "include": [
     "vite.config.ts",
+    "vite.minitool.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
+    "playwright.minitool.config.ts",
     "playwright.visual.config.ts",
     "eslint.config.js"
   ]

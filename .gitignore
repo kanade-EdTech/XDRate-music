@@ -61,6 +61,8 @@ web_modules/
 
 # Vite build output
 dist/
+dist-minitool/
+artifacts/minitool/
 src-tauri/target/
 .tauri-tmp/
 .tauri-localappdata/

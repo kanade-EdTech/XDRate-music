@@ -6,5 +6,24 @@
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#background)" />
-  <path d="M132 126h62l62 91 62-91h62l-92 130 96 130h-64l-64-90-64 90h-64l96-130-92-130z" fill="#fff" />
+
+  <g fill="#fff">
+    <!-- Letter X -->
+    <path d="M120 160 l50 80 l-50 80 h45 l30 -50 l30 50 h45 l-50 -80 l50 -80 h-45 l-30 50 l-30 -50 z" transform="matrix(1.15 0 0 1.15 -20 -30)" />
+
+    <!-- Letter D intertwined with a Musical Note -->
+    <!-- Stem of the note / Vertical bar of D -->
+    <rect x="290" y="150" width="28" height="175" rx="5" />
+
+    <!-- Note head at the bottom of the stem -->
+    <ellipse cx="265" cy="325" rx="45" ry="32" transform="rotate(-20 265 325)" />
+
+    <!-- Outer curve of the D, styled like a note flag tapering at the bottom to a sharp point -->
+    <path d="M 318 150
+             C 410 150, 455 190, 455 240
+             C 455 295, 390 325, 318 325
+             C 380 315, 410 280, 410 240
+             C 410 195, 380 185, 318 185
+             Z" />
+  </g>
 </svg>

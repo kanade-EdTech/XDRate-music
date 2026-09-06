@@ -299,7 +299,8 @@ test('protects unsaved edits before new and open actions', async ({ page }) => {
   await dialog.getByRole('button', { name: '取消' }).click();
   await expect(titleInput).toHaveValue('必须保留的修改');
 
-  await newButton.click();
+  await newButton.focus();
+  await page.keyboard.press('Enter');
   await dialog.getByRole('button', { name: '放弃修改' }).click();
   await expect(titleInput).toHaveValue('');
 
