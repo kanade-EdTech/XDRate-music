@@ -866,6 +866,8 @@ export function MiniToolApp() {
   const [coverInfo, setCoverInfo] = useState<CompressedCover | null>(null);
   const coverRequest = useRef(0);
   const postPanel = useRef<HTMLElement | null>(null);
+  const postTitleInput = useRef<HTMLInputElement | null>(null);
+  const postSubmitButton = useRef<HTMLButtonElement | null>(null);
   const viewportBaseline = useRef({ width: window.innerWidth, height: window.innerHeight });
   const t = copy[locale];
   const result = useMemo(() => calculateRating(rating), [rating]);
@@ -1159,7 +1161,10 @@ export function MiniToolApp() {
     });
     setPostTruncation(built.truncation);
     setPostState('confirming');
-    window.setTimeout(() => postPanel.current?.scrollIntoView(false), 0);
+    window.setTimeout(() => {
+      postPanel.current?.scrollIntoView(false);
+      postTitleInput.current?.focus();
+    }, 0);
   };
   const updatePostText = (field: 'title' | 'content' | 'tags', value: string) => {
     if (!postDraft) return;
@@ -1201,13 +1206,16 @@ export function MiniToolApp() {
 
     setPostState('submitting');
     const submitted = await platform.submitPostNote(built.payload);
-    setPostState(
+    const nextState =
       submitted.status === 'accepted'
         ? 'accepted'
         : submitted.status === 'cancelled'
           ? 'cancelled'
-          : 'failed',
-    );
+          : 'failed';
+    setPostState(nextState);
+    if (nextState === 'cancelled' || nextState === 'failed') {
+      window.setTimeout(() => postSubmitButton.current?.focus(), 0);
+    }
   };
   const albumText =
     albumState === 'idle'
@@ -1272,7 +1280,7 @@ export function MiniToolApp() {
     <main className="app-shell" data-testid="minitool-shell">
       <header className="hero">
         <div>
-          <p className="eyebrow">XDRATE MUSIC · MINI TOOL v0.3.1 M2</p>
+          <p className="eyebrow">XDRATE MUSIC · MINI TOOL v0.3.1</p>
           <h1>{t.product}</h1>
           <p className="subtitle">{t.subtitle}</p>
         </div>
@@ -1598,6 +1606,7 @@ export function MiniToolApp() {
           <label className="field">
             <span>{t.postTitle}</span>
             <input
+              ref={postTitleInput}
               value={postDraft.title ?? ''}
               aria-describedby="post-title-count"
               onChange={(event) => updatePostText('title', event.target.value)}
@@ -1649,6 +1658,7 @@ export function MiniToolApp() {
               {t.postBack}
             </button>
             <button
+              ref={postSubmitButton}
               type="button"
               className="post-primary"
               disabled={

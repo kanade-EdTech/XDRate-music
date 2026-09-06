@@ -157,6 +157,8 @@ async function main() {
   const sourceRoot = resolve(process.argv[3] ?? 'dist-minitool');
   const manifestPath = process.argv[4] ? resolve(process.argv[4]) : null;
   const channel = process.argv[5] ?? 'm4-preflight';
+  const version = process.argv[6] ?? '0.3.0';
+  const postPublishingEnabled = version === '0.3.1';
   const zip = await readFile(zipPath);
   if (zip.length > MAX_ZIP_BYTES) throw new Error(`ZIP exceeds 10 MiB: ${zip.length} bytes.`);
   const entries = readStoredEntries(zip);
@@ -187,7 +189,7 @@ async function main() {
   const manifest = {
     schemaVersion: 1,
     product: 'XDRate Music MiniTool',
-    version: '0.3.0',
+    version,
     channel,
     package: basename(zipPath),
     sha256: checksum,
@@ -203,12 +205,23 @@ async function main() {
     privacyBoundary: {
       network: 'disabled',
       localDraftStorage: 'container localStorage; may be cleared by the host',
-      nativeBridgeCalls: ['writeTempFile', 'saveImageToPhotosAlbum'],
-      directPublishing: 'disabled',
+      nativeBridgeCalls: [
+        'writeTempFile',
+        'saveImageToPhotosAlbum',
+        ...(postPublishingEnabled ? ['postNote'] : []),
+      ],
+      directPublishing: postPublishingEnabled
+        ? 'explicit user-confirmed handoff to Xiaohongshu native posting flow'
+        : 'disabled',
     },
     knownLimitations: [
       'Chrome 61 / Android 8.1 real-device compatibility is not yet recorded.',
       'Current Android and iOS 18.4+ exact-package acceptance is not yet recorded.',
+      ...(postPublishingEnabled
+        ? [
+            'postNote acceptance, cancellation, failure, return, and public-publication boundaries require exact-package real-device verification.',
+          ]
+        : []),
       ...(sourceDirty
         ? ['The source tree must be clean and committed before promotion to a public candidate.']
         : []),
