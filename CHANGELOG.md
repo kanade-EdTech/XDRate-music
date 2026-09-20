@@ -2,6 +2,39 @@
 
 All notable changes are documented here.
 
+## Unreleased — Bili Toy adaptation
+
+### Planned
+
+- Adapt the current v0.3.1 offline rating-card flow into an isolated Bili Toy build before v0.4.0 standalone mobile work.
+- Add relative-resource/subpath audits, `toy_doctor.py` content preflight, package manifests, and a JSON preview-before-review gate.
+- Keep Xiaohongshu Bridge capabilities, Bilibili cloud services, and native mobile APIs out of the first Toy candidate.
+
+## 0.3.1 — M4 device candidate
+
+### Added
+
+- Independent `postNote` capability detection and a narrow native handoff adapter with explicit accepted, cancelled, unavailable, and failed outcomes.
+- Bilingual publication confirmation with exact image preview, 20-character title and 1,000-character body limits, character counters, and privacy disclosure.
+- Save-before-handoff persistence plus complete editing-state and focus restoration after cancellation or failure.
+- Eleven-ratio end-to-end coverage proving that the confirmed PNG data URI and the image passed to `postNote` are byte-identical.
+- A device-acceptance plan for the official PC simulator, Android 8.1/WebView 61, current Android, and iOS 18.4+.
+
+### Changed
+
+- Skipped a standalone M3 milestone by product decision while retaining all card-parity, accessibility, focus, and fallback requirements as merged M4 gates.
+- Moved v0.3.1 packaging, filenames, manifests, and hash sidecars into a separate namespace so the frozen v0.3.0 RC remains immutable.
+- User-facing copy states that native Bridge acceptance enters Xiaohongshu's posting flow and is not proof of public publication.
+
+### Validation
+
+- Vitest: 158/158; MiniTool unit tests: 39/39; MiniTool E2E: 22/22; final-ZIP verifier: 2/2.
+- Exact RC.1: `xdrate-music-v0.3.1-rc.1.zip`, 254,566 bytes, SHA-256 `192efc241d8ad8f6a29d686d3f3d43d2c67b5eb1a79772859ed39fb0f2ec9f02`, source commit `9c2fc498f6e4956943bc9b94a3b3257fcca5f64b` with `dirty=false`.
+
+### Release status
+
+- This is an engineering/device candidate, not a public release. Exact-package simulator, Android, iOS, permission-matrix, TalkBack, VoiceOver, and publication-boundary evidence remains required.
+
 ## 0.2.0 — In development
 
 ### Added

@@ -144,7 +144,7 @@ The main branch or release tag also runs critical Playwright flows across browse
 
 - v0.2: wrap the existing Web UI in Tauri; M1 desktop shell/platform boundaries are complete, and M2 adds native filesystem adapters.
 - v0.3.0: add a dedicated Xiaohongshu MiniTool entry and offline-ZIP pipeline; reuse pure domain/card models while isolating the container behind Chrome 61 classic scripts, compatibility CSS, relative resources, and a narrow `window.xhs.miniTool` adapter.
-- v0.4: evaluate responsive PWA and Tauri Mobile first; consider Flutter only if reuse, plugins, or UX are inadequate.
+- v0.4.0: validate a standalone mobile app through the music flow, preferring Tauri Mobile and using the responsive PWA as the reuse, performance, and accessibility baseline; also prepare the shared 1.0.0 multi-domain core through declarative domain definitions and internal anime, book, and film/television fixtures. Consider Flutter only when reproducible evidence shows inadequate reuse, plugins, or UX.
 - Anime and games reuse the generic rating engine with separate presets, rules, and entry points.
 
 ### 10.1 V0.3.0 Xiaohongshu MiniTool boundary

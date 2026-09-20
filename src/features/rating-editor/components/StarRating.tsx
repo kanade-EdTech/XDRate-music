@@ -124,7 +124,7 @@ export function StarRating({ value, onChange, label, disabled = false }: StarRat
                 key={i}
                 aria-hidden="true"
                 onClick={() => handleStarClick(i)}
-                className="group relative flex h-10 w-8 min-h-10 min-w-8 cursor-pointer touch-manipulation items-center justify-center transition-transform hover:scale-110 active:scale-95"
+                className="group relative flex h-9 w-6 min-h-9 min-w-6 cursor-pointer touch-manipulation items-center justify-center transition-transform hover:scale-110 active:scale-95 sm:h-10 sm:w-8 sm:min-h-10 sm:min-w-8"
               >
                 {/* Background empty star */}
                 <StarOutlineIcon className="h-5 w-5 text-slate-300 transition-colors group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500" />
@@ -133,7 +133,7 @@ export function StarRating({ value, onChange, label, disabled = false }: StarRat
                 {fillPercent > 0 && (
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 flex items-center justify-start overflow-hidden pl-1.5"
+                    className="pointer-events-none absolute inset-0 flex items-center justify-start overflow-hidden pl-0.5 sm:pl-1.5"
                     style={{ width: `${fillPercent}%` }}
                   >
                     <StarIcon className="h-5 w-5 shrink-0 text-amber-400 dark:text-amber-300" />

@@ -59,14 +59,30 @@ Estimate: 9–17 effective development days, depending on visual polish and cros
 - The container cannot mirror desktop arbitrary JSON open/save. v0.3.0 guarantees only container-local draft recovery and explicitly states that container storage is not a permanent backup.
 - See the [V0.3.0 Xiaohongshu MiniTool Development Plan](./23_V0.3.0_XIAOHONGSHU_MINITOOL_DEVELOPMENT_PLAN.md) for scope, milestones, compatibility, performance, and ZIP acceptance gates.
 
-## 5. v0.4 Standalone Mobile
+## 5. v0.3.1 Bili Toy Current-Version Adaptation
 
-The former v0.3 Mobile plan moves in full to v0.4. Validate responsive PWA and Tauri Mobile first. Evaluate a Flutter rewrite only if essential plugins, performance, accessibility, or native UX fail requirements. Any rewrite decision must include maintenance cost and data compatibility. Xiaohongshu-specific JSBridge and ZIP constraints must not leak back into the standalone-mobile architecture.
+Before starting the standalone mobile App, adapt the current v0.3.1 rating and offline capabilities into a Bilibili Toy. This work uses a dedicated build entry and output directory and does not change the Xiaohongshu MiniTool, desktop, or Web mainline. It does not copy the Xiaohongshu JSBridge or add Bilibili cloud storage, leaderboards, or accounts.
 
-## 6. Future cross-category capability
+- M0: install and discover the official `toy` CLI, inventory current-version boundaries, and freeze the Bili Toy dependency list and version identity.
+- M1: build the Bili Toy shell, relative resources, subpath compatibility, bilingual UI, and current music-rating loop.
+- M2: regress eleven ratios, preview/PNG parity, templates, drafts, covers, keyboard/narrow layout, and screen reader behavior; run `toy_doctor.py` with zero ERRORs.
+- M3: produce `0.3.1-toy-rc.1` and run the `toy` CLI JSON preview; do not use `--yes` before explicit user confirmation.
+- M4: record Toy preview, review status, online subpath smoke results, and known limitations; rejected fixes increment the candidate and never overwrite old packages or hashes.
 
-- Extract the generic multidimensional engine for separate `XDRank Anime` and `XDRank Games` presets.
+See the [V0.3.1 Bili Toy Current-Version Adaptation Plan](./37_V0.3.1_BILI_TOY_CURRENT_VERSION_ADAPTATION_PLAN.md) for work packages, acceptance matrix, and CLI gates.
+
+## 6. v0.4.0 Standalone Mobile App Validation
+
+The former v0.3 Mobile plan moves in full to v0.4.0 and is explicitly positioned as a standalone mobile-app validation release. Validate responsive PWA and Tauri Mobile through the music flow first: Tauri Mobile is the preferred native shell, while PWA is the reuse, performance, and accessibility comparison. Evaluate Flutter only when an essential plugin is unavailable, performance or accessibility fails, or required native interaction cannot be implemented reliably. Any rewrite decision must include maintenance cost, algorithm parity, and data compatibility. Xiaohongshu-specific JSBridge and ZIP constraints must not leak into the standalone-mobile architecture.
+
+This release also establishes a declarative multi-domain rating core, with anime, books, and film/television as internal contract fixtures. The public validation flow remains music-first and does not expose unresearched domain defaults early. See the [V0.4.0 Standalone Mobile App and Multi-Domain Core Validation Plan](./36_V0.4.0_STANDALONE_MOBILE_APP_AND_MULTI_DOMAIN_CORE_VALIDATION_PLAN.md) for objectives, milestones, device matrix, and 1.0.0 handoff.
+
+## 7. v1.0.0 Multi-Domain Rater and Future Capability
+
+- Position `XDRate` 1.0.0 as a multi-domain rater whose initial candidate domains include music, anime, books, and film/television; every other domain requires separate research and product confirmation.
+- Extract a general multidimensional-rating engine so `XDRate {Domain}` presets share one scoring, archive, migration, and rating-card contract.
 - Implement ranges such as -4–9 or -3–10 as rule configuration, not hard-coded UI.
+- v0.4.0 validates the multi-domain core without freezing the final 1.0.0 axes. Launch domains, defaults, Schema, and platforms are frozen only after v0.4.0 evidence review.
 - Politics-related axes, maximum-score restrictions, and password unlocks are sensitive and underspecified. Do not implement them before threat modeling, legal review, and explicit requirements.
 
 ## 7. Versions and branches
