@@ -1,7 +1,7 @@
 # XDRate Music Development Documentation
 
-Status: V0.1 implementation closure / V0.2 M4 engineering complete, public RC externally gated / V0.3.0 MiniTool M4 source freeze complete, RC.1 awaiting real-container acceptance / V0.3.1 M4 engineering candidate complete, device-gated / Bili Toy v0.3.1 adaptation prioritized / V0.4.0 standalone mobile App and multi-domain core validation planned<br>
-Last updated: 2026-09-07
+Status: V0.1 closure / V0.2 engineering complete / V0.3.x container releases under hardening / V0.4.0 sharing completion fixed / V1.0.0 music mainline and independent anime experiment fixed / V1.1.0 WeChat Mini Program planned / V2.0.0 standalone App entity deferred<br>
+Last updated: 2026-09-23
 
 ## 1. Purpose
 
@@ -52,7 +52,10 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 | [33 V0.3.1 M2 Post Confirmation and Recovery Log](./33_V0.3.1_M2_POST_CONFIRMATION_AND_RECOVERY_EXECUTION_LOG.md)                                   | Bilingual confirmation, limits, persistence, and cancellation recovery        | Product, engineering, QA       |
 | [34 V0.3.1 M4 Candidate and Merged Acceptance Log](./34_V0.3.1_M4_CANDIDATE_AND_MERGED_ACCEPTANCE_EXECUTION_LOG.md)                                 | Skipped standalone M3, exact RC.1, merged gates, and device matrix            | Product, QA, release           |
 | [35 V0.3.1 M4 Device Acceptance and Release Plan](./35_V0.3.1_M4_DEVICE_ACCEPTANCE_AND_RELEASE_PLAN.md)                                             | Same-package device order, evidence, re-candidate policy, and release DoD     | Product, QA, release           |
-| [36 V0.4.0 Standalone Mobile App and Multi-Domain Core Validation Plan](./36_V0.4.0_STANDALONE_MOBILE_APP_AND_MULTI_DOMAIN_CORE_VALIDATION_PLAN.md) | Mobile-app probes, shared domain core, and 1.0 handoff gates                  | Product, engineering, QA       |
+| [36 V0.4.0 Former Standalone App Plan](./36_V0.4.0_STANDALONE_MOBILE_APP_AND_MULTI_DOMAIN_CORE_VALIDATION_PLAN.md) | Withdrawn historical plan; see 39 for the current roadmap | Archive |
+| [39 Version Roadmap Reset and Future Plan](./39_VERSION_ROADMAP_RESET_AND_FUTURE_PLAN.md) | v0.4.0 sharing, v1.0.0 music mainline and independent anime experiment, v1.1.0 WeChat, v2.0.0 App entity | Everyone |
+| [40 V0.4.0 Sharing Mechanism Design](./40_V0.4.0_SHARING_MECHANISM_DESIGN.md) | Sharing targets, contracts, state machine, adapters, failure taxonomy, and gates | Product, engineering, QA |
+| [41 V0.4.0 Sharing Mechanism Implementation Plan](./41_V0.4.0_SHARING_MECHANISM_IMPLEMENTATION_PLAN.md) | Snapshot invalidation, recovery idempotency, probes, signature, and release gates | Product, engineering, QA |
 | [37 V0.3.1 Bili Toy Current-Version Adaptation Plan](./37_V0.3.1_BILI_TOY_CURRENT_VERSION_ADAPTATION_PLAN.md)                                       | Current rating card adapted to Bili Toy, preflight, preview, and review gates | Product, engineering, QA       |
 | [Manual Product Conclusions](./MANUAL_PRODUCT_CONCLUSIONS.md)                                                                                       | Sample review conclusions, merged reasons, publisher and platform ADRs        | Everyone                       |
 
@@ -62,13 +65,13 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 
 ## 5. Current baseline
 
-- Target release: Web v0.1 (closure) / Desktop v0.2 (M4 engineering complete, public RC gated) / Xiaohongshu MiniTool v0.3.0 (M4 static preflight complete, public RC gated) / MiniTool v0.3.1 (M4 engineering candidate complete, RC.1 awaiting same-package device acceptance) / Bili Toy v0.3.1 (priority adaptation; CLI and review gates pending) / Standalone Mobile App v0.4.0 (deferred) / XDRate multi-domain rater v1.0.0 (direction confirmed; scope freezes after v0.4.0 evidence)
+- Target release: Web v0.1 (closure) / Desktop v0.2 (engineering complete) / Xiaohongshu MiniTool and Bili Toy v0.3.x (container hardening) / v0.4.0 (sharing completion) / v0.5.0 (game-rating pilot) / v1.0.0 (music mainline plus independent anime experiment; books/film remain contracts) / WeChat Mini Program v1.1.0 / standalone App entity v2.0.0 (deferred)
 - Stack: React + TypeScript + Vite + Tailwind CSS + Tauri 2
 - Algorithm: `music-linear-100-v4` (0–100 aggregate; unrated axes excluded, one-star minimum)
 - Data: Archive Schema v2, browser-local storage plus JSON import/export, zero backend
 - Card Layout: 11 ratios, 4 layout families, content-aware multi-state adaptive layout, deterministic fallback overflow gate
 - Image export: `html-to-image` (2× physical resolution PNG)
-- Quality Assurance: Vitest 158/158, MiniTool-focused unit tests 39/39, Rust 8/8, Playwright cross-browser 48/48, MiniTool E2E 22/22, card visual 3/3, desktop visual 5/5, and visual handover 2/2 pass
+- Quality Assurance: Vitest baseline 158/158, MiniTool-focused unit tests 42/42, Rust 8/8, Playwright cross-browser 48/48, MiniTool E2E 22/22, card visual 3/3, desktop visual 5/5, and visual handover 2/2 pass; the M0 production build also passes
 - License: MIT; user content is subject to the disclaimer
 - Language: Fully supports Simplified Chinese and English (i18n message key driven)
 - Release: Windows 10/11 x64; public packages require Authenticode + RFC 3161 timestamp; `0.2.0` updates manually

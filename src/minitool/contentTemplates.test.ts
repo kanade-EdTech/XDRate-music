@@ -100,6 +100,7 @@ describe('MiniTool content templates', () => {
     expect(reopened.templateCatalog.templates.map((template) => template.name)).toEqual([
       '我的开局',
     ]);
+    expect(reopened.rating.work.title).toBe('海棠仙');
     expect(reopened.templateCatalog.templates.some((template) => template.name === '海棠仙')).toBe(
       false,
     );

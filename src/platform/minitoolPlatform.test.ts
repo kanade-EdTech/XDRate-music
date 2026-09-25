@@ -22,7 +22,7 @@ describe('MiniTool platform services', () => {
     expect(services.isAlbumBridgeAvailable()).toBe(true);
     expect(services.isPostNoteBridgeAvailable()).toBe(false);
     await expect(services.savePngToAlbum('data:image/png;base64,iVBORw0KGgo=')).resolves.toEqual({
-      status: 'success',
+      status: 'completed',
       filePath: 'xhs://temp/card.png',
     });
   });

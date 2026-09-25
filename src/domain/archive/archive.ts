@@ -74,6 +74,7 @@ const ratingSchema = z.object({
   negativeItems: z.array(negativeItemSchema).max(5),
   overallComment: z.string().max(2000),
   personalStory: z.string().max(3000),
+  personalSignature: z.string().max(120).optional(),
 });
 
 export const workspaceSchema = z.object({ rating: ratingSchema, cardOptions: cardOptionsSchema });

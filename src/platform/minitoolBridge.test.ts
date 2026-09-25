@@ -72,7 +72,7 @@ describe('submitPostNoteToMiniTool', () => {
         POST_NOTE_PAYLOAD,
         createHost({ writeTempFile, saveImageToPhotosAlbum }),
       ),
-    ).resolves.toEqual({ status: 'failed', reason: 'bridge-unavailable' });
+    ).resolves.toEqual({ status: 'unavailable' });
     expect(writeTempFile).not.toHaveBeenCalled();
     expect(saveImageToPhotosAlbum).not.toHaveBeenCalled();
   });
@@ -108,7 +108,21 @@ describe('submitPostNoteToMiniTool', () => {
 
     await expect(
       submitPostNoteToMiniTool(POST_NOTE_PAYLOAD, createHost({ postNote })),
-    ).resolves.toEqual({ status: 'failed', reason: 'post-note-failed' });
+    ).resolves.toEqual({ status: 'unknown' });
+  });
+
+  it('classifies permission denial independently from opaque failures', async () => {
+    const postNote = vi.fn().mockRejectedValue({
+      errMsg: 'postNote:fail permission denied',
+      errCode: 'NO_PERMISSION',
+    });
+
+    await expect(
+      submitPostNoteToMiniTool(POST_NOTE_PAYLOAD, createHost({ postNote })),
+    ).resolves.toEqual({
+      status: 'denied',
+      error: { errMsg: 'postNote:fail permission denied', errCode: 'NO_PERMISSION' },
+    });
   });
 });
 
@@ -119,7 +133,7 @@ describe('savePngToMiniToolAlbum', () => {
 
     await expect(
       savePngToMiniToolAlbum(PNG_DATA_URI, createHost({ writeTempFile, saveImageToPhotosAlbum })),
-    ).resolves.toEqual({ status: 'success', filePath: 'xhs://temp/card.png' });
+    ).resolves.toEqual({ status: 'completed', filePath: 'xhs://temp/card.png' });
 
     expect(writeTempFile).toHaveBeenCalledWith({ data: PNG_DATA_URI });
     expect(saveImageToPhotosAlbum).toHaveBeenCalledWith({ filePath: 'xhs://temp/card.png' });
@@ -131,8 +145,7 @@ describe('savePngToMiniToolAlbum', () => {
       reason: 'invalid-data',
     });
     await expect(savePngToMiniToolAlbum(PNG_DATA_URI, {})).resolves.toEqual({
-      status: 'failed',
-      reason: 'bridge-unavailable',
+      status: 'unavailable',
     });
   });
 
@@ -164,6 +177,7 @@ describe('savePngToMiniToolAlbum', () => {
     await expect(savePngToMiniToolAlbum(PNG_DATA_URI, host)).resolves.toEqual({
       status: 'failed',
       reason: 'save-failed',
+      error: { errMsg: 'saveImageToPhotosAlbum:fail' },
     });
   });
 });

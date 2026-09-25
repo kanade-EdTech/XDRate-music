@@ -2,13 +2,47 @@
 
 All notable changes are documented here.
 
+## 0.4.1 — Sharing optimization continuation
+
+### Added
+
+- Retains the v0.4.0 sharing flow: preview/export parity, eleven ratios, album save, native handoff, stale-image choice, cancellation recovery, persistence-before-submit, and explicit failure classification.
+- Restores the historical metadata markup for editable artist and album labels: compact editable title text followed by a single value input.
+- Publishes a new MiniTool package namespace for v0.4.1 without replacing the historical v0.4.0 artifacts.
+
+### Validation
+
+- Typecheck passed; MiniTool unit tests: 44/44; MiniTool E2E: 22/22; offline artifact audit: 0 warnings and 0 errors.
+
+## Unreleased — Roadmap reset and sharing-first v0.4.0
+
+### Planned
+
+- Re-scope v0.4.0 to sharing completion: card/export parity, album save, system share, platform handoff, and cancellation/failure recovery.
+- Plan v0.5.0 as a minimal game-rating pilot to validate the domain-pack contract before the 1.0.0 frontend rewrite.
+- Move the multi-domain `XDRate` rater to v1.0.0 with music, anime, books, and film/TV as the first domains.
+- Plan v1.1.0 as the WeChat Mini Program adaptation.
+- Defer the standalone Android/iOS App entity, native packages, and store release to v2.0.0.
+
 ## Unreleased — Bili Toy adaptation
 
 ### Planned
 
-- Adapt the current v0.3.1 offline rating-card flow into an isolated Bili Toy build before v0.4.0 standalone mobile work.
+- Adapt the current v0.3.1 offline rating-card flow into an isolated Bili Toy build before v0.4.0 sharing-completion work.
 - Add relative-resource/subpath audits, `toy_doctor.py` content preflight, package manifests, and a JSON preview-before-review gate.
 - Keep Xiaohongshu Bridge capabilities, Bilibili cloud services, and native mobile APIs out of the first Toy candidate.
+
+## 0.3.3 — Toy interaction repair
+
+### Added
+
+- A prominent one-click clear action for seeded work text, scores, reasons, cover, and narrative fields while preserving templates and page structure.
+- A gray empty-state explanation that clarifies placeholder text is not scored, exported, or saved as work content.
+
+### Fixed
+
+- Professional mode now restores its five preset rating axes when an older Toy draft contains an empty professional axis list; only custom mode starts intentionally blank.
+- This version is the current Toy development baseline for the 0.3.3 candidate.
 
 ## 0.3.1 — M4 device candidate
 

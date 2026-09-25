@@ -34,21 +34,28 @@ declare global {
 }
 
 export type MiniToolImageSaveResult =
-  | { status: 'success'; filePath: string }
+  | { status: 'completed'; filePath: string }
   | { status: 'cancelled' }
+  | { status: 'denied'; error?: MiniToolBridgeError }
   | {
       status: 'failed';
-      reason: 'invalid-data' | 'bridge-unavailable' | 'write-failed' | 'save-failed';
-    };
+      reason: 'invalid-data' | 'write-failed' | 'save-failed';
+      error?: MiniToolBridgeError;
+    }
+  | { status: 'unavailable' }
+  | { status: 'unknown'; error?: MiniToolBridgeError };
 
 export type MiniToolPostNoteResult =
   | { status: 'accepted' }
   | { status: 'cancelled' }
+  | { status: 'denied'; error?: MiniToolBridgeError }
   | {
       status: 'failed';
-      reason: 'bridge-unavailable' | 'post-note-failed';
+      reason: 'post-note-failed';
       error?: MiniToolBridgeError;
-    };
+    }
+  | { status: 'unavailable' }
+  | { status: 'unknown'; error?: MiniToolBridgeError };
 
 function isCallable(value: unknown): value is (...args: never[]) => unknown {
   return typeof value === 'function';
@@ -97,6 +104,19 @@ function normalizeBridgeError(error: unknown): MiniToolBridgeError | undefined {
   };
 }
 
+function isPermissionDenied(error: unknown): boolean {
+  const normalized = normalizeBridgeError(error);
+  const text = `${normalized?.errMsg ?? ''} ${normalized?.errCode ?? ''}`.toLowerCase();
+  return /denied|permission|authorize|auth|not.?allow|forbidden/.test(text);
+}
+
+function reportsFailure(error: unknown): boolean {
+  const normalized = normalizeBridgeError(error);
+  return /fail|error|denied|permission|forbidden/i.test(
+    `${normalized?.errMsg ?? ''} ${normalized?.errCode ?? ''}`,
+  );
+}
+
 /**
  * Hands a previously validated payload to Xiaohongshu exactly once.
  * `accepted` means only that the native posting flow accepted the handoff; it is not proof of
@@ -108,7 +128,7 @@ export async function submitPostNoteToMiniTool(
 ): Promise<MiniToolPostNoteResult> {
   const bridge = resolveMiniToolPostNoteBridge(host);
   if (!bridge) {
-    return { status: 'failed', reason: 'bridge-unavailable' };
+    return { status: 'unavailable' };
   }
 
   try {
@@ -120,6 +140,13 @@ export async function submitPostNoteToMiniTool(
     }
 
     const normalizedError = normalizeBridgeError(error);
+    if (isPermissionDenied(error)) {
+      return {
+        status: 'denied',
+        ...(normalizedError === undefined ? {} : { error: normalizedError }),
+      };
+    }
+    if (normalizedError === undefined) return { status: 'unknown' };
     return {
       status: 'failed',
       reason: 'post-note-failed',
@@ -138,29 +165,55 @@ export async function savePngToMiniToolAlbum(
 
   const bridge = resolveMiniToolBridge(host);
   if (!bridge) {
-    return { status: 'failed', reason: 'bridge-unavailable' };
+    return { status: 'unavailable' };
   }
 
   let written: MiniToolWriteTempFileResult;
   try {
     written = await bridge.writeTempFile({ data: dataUri });
   } catch (error) {
-    return isCancellation(error)
-      ? { status: 'cancelled' }
-      : { status: 'failed', reason: 'write-failed' };
+    if (isCancellation(error)) return { status: 'cancelled' };
+    const normalizedError = normalizeBridgeError(error);
+    if (isPermissionDenied(error)) {
+      return {
+        status: 'denied',
+        ...(normalizedError === undefined ? {} : { error: normalizedError }),
+      };
+    }
+    if (normalizedError === undefined) return { status: 'unknown' };
+    return { status: 'failed', reason: 'write-failed', error: normalizedError };
   }
 
   const filePath = written?.filePath;
+  if (reportsFailure(written)) {
+    if (isPermissionDenied(written)) {
+      return { status: 'denied', error: normalizeBridgeError(written) };
+    }
+    return { status: 'failed', reason: 'write-failed', error: normalizeBridgeError(written) };
+  }
   if (typeof filePath !== 'string' || filePath.length === 0 || /^https?:\/\//i.test(filePath)) {
     return { status: 'failed', reason: 'write-failed' };
   }
 
   try {
-    await bridge.saveImageToPhotosAlbum({ filePath });
-    return { status: 'success', filePath };
+    const saved = await bridge.saveImageToPhotosAlbum({ filePath });
+    if (reportsFailure(saved)) {
+      if (isPermissionDenied(saved)) {
+        return { status: 'denied', error: normalizeBridgeError(saved) };
+      }
+      return { status: 'failed', reason: 'save-failed', error: normalizeBridgeError(saved) };
+    }
+    return { status: 'completed', filePath };
   } catch (error) {
-    return isCancellation(error)
-      ? { status: 'cancelled' }
-      : { status: 'failed', reason: 'save-failed' };
+    if (isCancellation(error)) return { status: 'cancelled' };
+    const normalizedError = normalizeBridgeError(error);
+    if (isPermissionDenied(error)) {
+      return {
+        status: 'denied',
+        ...(normalizedError === undefined ? {} : { error: normalizedError }),
+      };
+    }
+    if (normalizedError === undefined) return { status: 'unknown' };
+    return { status: 'failed', reason: 'save-failed', error: normalizedError };
   }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "xdrate-music"
-version = "0.2.0"
+version = "0.4.1"
 description = "XDRate Music desktop shell"
 authors = ["Kehun_EdTech"]
 license = "MIT"

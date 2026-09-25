@@ -30,7 +30,7 @@ test('completes full happy path without third-party requests or a11y violations'
 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByTestId('app-version')).toContainText(
-    '版本 0.2.0 · Kehun_EdTech · 浏览器模式',
+    '版本 0.3.3 · Kehun_EdTech · 浏览器模式',
   );
   await expect(page.getByRole('heading', { name: '综合评分' })).toBeVisible();
   await expect(page.getByText('无法计算：请至少为一个 LV1–LV6 评价轴打 1–10 分。')).toBeVisible();
@@ -105,6 +105,38 @@ test('completes full happy path without third-party requests or a11y violations'
   const axeResults = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(axeResults.violations).toEqual([]);
   expect(externalRequests).toEqual([]);
+});
+
+test('clears seeded content while preserving the rating-card structure', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('作品名').fill('默认示例作品');
+  await page.getByLabel('总体评价（选填）').fill('需要被清除的说明');
+  await page.locator('[data-rating-scroll="stars"] [role="slider"]').first().locator('span.group').nth(7).click();
+
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: '一键清除默认内容' }).click();
+
+  await expect(page.getByLabel('作品名')).toHaveValue('');
+  await expect(page.getByLabel('总体评价（选填）')).toHaveValue('');
+  await expect(page.locator('[data-rating-scroll="stars"] [role="slider"]').first()).toHaveAttribute(
+    'aria-valuenow',
+    '0',
+  );
+  await expect(page.getByText('已清除默认内容，当前是一张空白评分卡。', { exact: false })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '综合评分' })).toBeVisible();
+});
+
+test('professional mode restores its preset axes instead of opening as custom', async ({ page }) => {
+  await page.goto('/');
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByLabel('专业模式').check();
+
+  await expect(page.locator('input[value="填词 / 立意"]')).toBeVisible();
+  await expect(page.locator('input[value="作曲 / 编曲"]')).toBeVisible();
+  await expect(page.locator('input[value="演唱 / 调音 / 混音"]')).toBeVisible();
+  await expect(page.locator('input[value="创新"]')).toBeVisible();
+  await expect(page.locator('input[value="其他"]')).toBeVisible();
+  await expect(page.getByText('自定义模式', { exact: true })).toHaveCount(0);
 });
 
 test('auto-saves draft to localStorage and restores on page reload', async ({ page }) => {

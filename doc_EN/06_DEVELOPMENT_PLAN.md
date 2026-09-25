@@ -2,7 +2,7 @@
 
 ## 1. Delivery strategy
 
-Build a verifiable, fully offline Web MVP, then expand in order to Windows desktop, a Xiaohongshu MiniTool, and standalone mobile. Milestones are demonstrable vertical slices, not isolated technical layers.
+Build a verifiable, fully offline Web MVP, then expand to Windows desktop, the Xiaohongshu MiniTool, Bili Toy, sharing, the multi-domain rater, and WeChat. The standalone App entity is deferred to v2.0.0. Milestones are demonstrable vertical slices, not isolated technical layers. See the [roadmap reset](./39_VERSION_ROADMAP_RESET_AND_FUTURE_PLAN.md).
 
 ## 2. v0.1 Web MVP
 
@@ -71,28 +71,41 @@ Before starting the standalone mobile App, adapt the current v0.3.1 rating and o
 
 See the [V0.3.1 Bili Toy Current-Version Adaptation Plan](./37_V0.3.1_BILI_TOY_CURRENT_VERSION_ADAPTATION_PLAN.md) for work packages, acceptance matrix, and CLI gates.
 
-## 6. v0.4.0 Standalone Mobile App Validation
+## 6. v0.4.0 Sharing Completion
 
-The former v0.3 Mobile plan moves in full to v0.4.0 and is explicitly positioned as a standalone mobile-app validation release. Validate responsive PWA and Tauri Mobile through the music flow first: Tauri Mobile is the preferred native shell, while PWA is the reuse, performance, and accessibility comparison. Evaluate Flutter only when an essential plugin is unavailable, performance or accessibility fails, or required native interaction cannot be implemented reliably. Any rewrite decision must include maintenance cost, algorithm parity, and data compatibility. Xiaohongshu-specific JSBridge and ZIP constraints must not leak into the standalone-mobile architecture.
+v0.4.0 no longer builds a standalone App entity. It completes the sharing loop: 11-ratio preview/PNG parity, album save, system share, platform handoff, confirmation, privacy copy, cancellation, and failure recovery. Desktop, MiniTool, and Bili Toy keep separate adapters while sharing rating/card/error contracts. Native App toolchains, packages, and stores move to v2.0.0. See the [roadmap reset](./39_VERSION_ROADMAP_RESET_AND_FUTURE_PLAN.md).
 
-This release also establishes a declarative multi-domain rating core, with anime, books, and film/television as internal contract fixtures. The public validation flow remains music-first and does not expose unresearched domain defaults early. See the [V0.4.0 Standalone Mobile App and Multi-Domain Core Validation Plan](./36_V0.4.0_STANDALONE_MOBILE_APP_AND_MULTI_DOMAIN_CORE_VALIDATION_PLAN.md) for objectives, milestones, device matrix, and 1.0.0 handoff.
+## 7. v0.5.0 Game-Rating Pilot
 
-## 7. v1.0.0 Multi-Domain Rater and Future Capability
+Use a minimal game-domain loop to validate domain packs, rules, fields, and card requirements without rewriting the entire frontend or adding an online game database. This evidence feeds the 1.0.0 frontend rewrite and multi-domain release.
 
-- Position `XDRate` 1.0.0 as a multi-domain rater whose initial candidate domains include music, anime, books, and film/television; every other domain requires separate research and product confirmation.
-- Extract a general multidimensional-rating engine so `XDRate {Domain}` presets share one scoring, archive, migration, and rating-card contract.
-- Implement ranges such as -4–9 or -3–10 as rule configuration, not hard-coded UI.
-- v0.4.0 validates the multi-domain core without freezing the final 1.0.0 axes. Launch domains, defaults, Schema, and platforms are frozen only after v0.4.0 evidence review.
-- Politics-related axes, maximum-score restrictions, and password unlocks are sensitive and underspecified. Do not implement them before threat modeling, legal review, and explicit requirements.
+## 8. v1.0.0 New Frontend and Multi-Domain Rater
 
-## 7. Versions and branches
+- `XDRate` 1.0.0 rebuilds the frontend against the stable core and launches with music, anime, books, film/television, and games.
+- Build the new frontend as a parallel entry rather than overwriting 0.x; maintain the old entry until import/export, sharing, accessibility, and rollback gates pass.
+- Declarative domain packs provide axes, fields, scoring rules, copy, and card labels over shared scoring, archive, migration, and export contracts.
+- Preserve v0.3.x music compatibility; politics, sensitive identity axes, and unresearched domains stay out of defaults.
+
+## 9. v1.1.0 WeChat Mini Program
+
+- Adapt the 1.0.0 domain core to the WeChat container.
+- Validate music first, then expose anime, books, and film/TV; keep WeChat file, album, share, and lifecycle APIs behind narrow adapters.
+- Add independent review, package-size, privacy, permissions, and real-device gates.
+
+## 10. v2.0.0 Standalone App Entity
+
+- Start only after the 1.1.0 WeChat and sharing evidence is stable.
+- Freeze Android/iOS identity, upgrades, signing, permissions, lifecycle, and store strategy.
+- Choose Tauri Mobile, Flutter, or another shell from evidence and reuse the 1.x domain, algorithm, Schema, and card contracts.
+
+## 11. Versions and branches
 
 - Use semantic versions such as `0.1.0` and `0.2.0`.
 - Use short-lived feature branches and Pull Requests into `main`.
 - Every release tag includes changes, known issues, schema version, and algorithm version.
 - A breaking archive change increments the schema major version and provides migration or a clear incompatibility message.
 
-## 8. Definition of done
+## 12. Definition of done
 
 A feature is complete only when:
 

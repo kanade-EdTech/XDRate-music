@@ -158,7 +158,7 @@ async function main() {
   const manifestPath = process.argv[4] ? resolve(process.argv[4]) : null;
   const channel = process.argv[5] ?? 'm4-preflight';
   const version = process.argv[6] ?? '0.3.0';
-  const postPublishingEnabled = version === '0.3.1';
+  const postPublishingEnabled = version !== '0.3.0';
   const zip = await readFile(zipPath);
   if (zip.length > MAX_ZIP_BYTES) throw new Error(`ZIP exceeds 10 MiB: ${zip.length} bytes.`);
   const entries = readStoredEntries(zip);

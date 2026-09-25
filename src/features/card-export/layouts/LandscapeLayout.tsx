@@ -90,7 +90,7 @@ export function LandscapeLayout({
       </div>
 
       <div className="shrink-0">
-        <CardFooter dark={dark} />
+        <CardFooter dark={dark} signature={draft.personalSignature} />
       </div>
     </div>
   );

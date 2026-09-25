@@ -9,6 +9,11 @@ export interface PostNoteDraft {
   content?: string;
   tags?: string;
   imageDataUris: readonly string[];
+  requestId?: string;
+  renderRevision?: string;
+  postState?: 'confirming' | 'persisted' | 'invoking' | 'accepted' | 'cancelled' | 'failed';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface MiniToolPostNotePayload {

@@ -2,7 +2,12 @@ import { StrictMode, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { calculateRating, isRatedAxis } from '../domain/rating/calculateRating';
-import { createDefaultAxes, createNegativeItem, createRatingAxis } from '../domain/rating/presets';
+import {
+  clearRatingContent,
+  createDefaultAxes,
+  createNegativeItem,
+  createRatingAxis,
+} from '../domain/rating/presets';
 import type { MusicRatingDraft, NegativeItem, RatingAxis } from '../domain/rating/types';
 import { ALL_CARD_RATIOS, getRatioConfig } from '../features/card-export/ratioConfig';
 import type { CardRatio } from '../features/card-export/types';
@@ -31,7 +36,12 @@ import {
   type PostNoteDraft,
   type PostNoteTruncation,
 } from './postNotePayload';
-import { loadPendingPostDraft, savePendingPostDraft } from './postNoteStorage';
+import {
+  clearPendingPostDraft,
+  loadPendingPostDraft,
+  savePendingPostDraft,
+} from './postNoteStorage';
+import { createRenderRevision } from './renderRevision';
 import { saveMiniToolWorkspace, type MiniToolLocale } from './storage';
 import { calculateViewportMetrics } from './viewport';
 
@@ -46,7 +56,17 @@ type TemplateNotice =
   | 'duplicate'
   | 'limit'
   | 'too-large';
-type AlbumState = 'idle' | 'preview-ready' | 'saving' | 'saved' | 'cancelled' | 'failed';
+type AlbumState =
+  | 'idle'
+  | 'preview-ready'
+  | 'stale'
+  | 'saving'
+  | 'saved'
+  | 'cancelled'
+  | 'denied'
+  | 'unavailable'
+  | 'unknown'
+  | 'failed';
 type PostState =
   | 'idle'
   | 'confirming'
@@ -55,6 +75,9 @@ type PostState =
   | 'submitting'
   | 'accepted'
   | 'cancelled'
+  | 'denied'
+  | 'unavailable'
+  | 'unknown'
   | 'failed'
   | 'storage-failed'
   | 'invalid';
@@ -74,7 +97,7 @@ interface InitialState {
   templateCatalog: MiniToolContentTemplateCatalog;
   templateNotice: TemplateNotice;
   pendingPost: PostNoteDraft | null;
-  pendingPostState: Extract<PostState, 'idle' | 'restored' | 'invalid'>;
+  pendingPostState: Extract<PostState, 'idle' | 'restored' | 'accepted' | 'invalid'>;
 }
 
 const copy = {
@@ -94,7 +117,9 @@ const copy = {
     work: '作品信息',
     title: '作品名',
     artist: '艺术家',
+    artistLabel: '艺术家字段名（可修改）',
     album: '专辑',
+    albumLabel: '专辑字段名（可修改）',
     year: '发行年份',
     cover: '本地封面（离线压缩预览，不写入草稿）',
     coverProcessing: '正在离线压缩封面…',
@@ -103,6 +128,10 @@ const copy = {
     coverTooLarge: '原图超过 20 MiB，未加载以保护内存',
     coverFailed: '无法解码或压缩这张图片，请换一张重试',
     clearCover: '移除封面',
+    clearDefault: '一键清除默认内容',
+    clearDefaultConfirm: '确定清除默认文字、评分、理由、故事和封面吗？已保存模板不会受影响。',
+    clearDefaultNotice:
+      '已清除默认内容。灰色提示文字只用于说明填写位置，不会计入评分、导出或保存为作品内容。已保存模板仍可在上方套用。',
     mode: '评分模式',
     simple: '简易模式',
     professional: '专业模式',
@@ -122,6 +151,7 @@ const copy = {
     negativeName: '扣分项名称',
     overall: '总体评价',
     story: '个人故事',
+    signature: '个人签名档（可选）',
     exportTitle: '评分卡预览、相册与发布',
     exportHelp:
       '预览、相册保存和发布确认使用同一张正式评分卡 PNG。当前比例可切换，提交前请确认文字和图片。',
@@ -133,10 +163,19 @@ const copy = {
     albumSaving: '正在请求保存…',
     albumSaved: '已保存到系统相册',
     albumCancelled: '用户取消了保存',
+    albumDenied: '相册权限被拒绝；请在系统设置中允许后重试',
+    albumUnavailable: '当前容器不提供相册能力；仍可下载或导出 PNG',
+    albumUnknown: '相册返回了未知结果；图片仍保留，可重试',
     albumFailed: '保存失败；草稿仍保留，可重试',
+    previewStale: '评分卡内容已变化，请重新生成 PNG 后再保存或发布。',
     preview: '评分卡 PNG 预览',
     preparePost: '发布到小红书',
     postRequiresPreview: '请先生成评分卡 PNG，再进入发布确认。',
+    postStaleTitle: '评分卡内容已变化',
+    postStaleHelp: '当前已有一张旧 PNG。请选择分享方式。',
+    postRegenerate: '生成新图片后分享',
+    postShareOld: '分享旧图片',
+    postCancelShare: '取消',
     postBridgeMissing: '当前客户端未提供帖子发布能力；仍可生成 PNG 并保存到相册。',
     postConfirmation: '发布确认',
     postHelp: '请确认将要提交的文字和图片。最终公开发布仍由你在小红书原生页面完成。',
@@ -153,10 +192,14 @@ const copy = {
     postSubmit: '去小红书发布',
     postConfirming: '请核对内容后再继续',
     postRestored: '已恢复上次未完成的发布确认',
+    postAcceptedRestored: '上次发布请求已受理，不会自动重复提交',
     postPersisting: '正在保存草稿和待发布内容…',
     postSubmitting: '正在进入小红书发布流程…',
     postAccepted: '已进入小红书发布流程；最终是否公开发布由你确认',
     postCancelled: '已取消；确认内容和评分卡仍完整保留',
+    postDenied: '发布权限被拒绝；请在小红书中允许后重试',
+    postUnavailable: '当前容器不提供发布能力；仍可保存 PNG',
+    postUnknown: '发布返回了未知结果；确认内容仍保留，可重试',
     postFailed: '未能进入发布流程；确认内容仍保留，可重试',
     postStorageFailed: '无法安全保存草稿或待发布内容，未打开发布流程',
     postInvalid: '待发布内容无效，请重新生成评分卡',
@@ -205,7 +248,9 @@ const copy = {
     work: 'Work details',
     title: 'Title',
     artist: 'Artist',
+    artistLabel: 'Artist label (editable)',
     album: 'Album',
+    albumLabel: 'Album label (editable)',
     year: 'Release year',
     cover: 'Local cover (offline compressed preview; not stored in draft)',
     coverProcessing: 'Compressing the cover offline…',
@@ -214,6 +259,11 @@ const copy = {
     coverTooLarge: 'Source exceeds 20 MiB and was not loaded to protect memory',
     coverFailed: 'This image could not be decoded or compressed; choose another image',
     clearCover: 'Remove cover',
+    clearDefault: 'Clear seeded content',
+    clearDefaultConfirm:
+      'Clear the seeded text, scores, reasons, story, and cover? Saved templates will not be affected.',
+    clearDefaultNotice:
+      'Seeded content cleared. Gray hints only explain what to fill in; they are not scored, exported, or saved as work content. Saved templates remain available above.',
     mode: 'Rating mode',
     simple: 'Simple',
     professional: 'Professional',
@@ -233,6 +283,7 @@ const copy = {
     negativeName: 'Deduction name',
     overall: 'Overall comment',
     story: 'Personal story',
+    signature: 'Personal signature (optional)',
     exportTitle: 'Rating-card preview, album, and posting',
     exportHelp:
       'Preview, album save, and posting confirmation use the same production PNG. Switch ratios before confirming the exact text and image.',
@@ -244,10 +295,19 @@ const copy = {
     albumSaving: 'Requesting save…',
     albumSaved: 'Saved to system album',
     albumCancelled: 'Save cancelled',
+    albumDenied: 'Album permission was denied; allow it in system settings and retry',
+    albumUnavailable: 'This container has no album capability; PNG export remains available',
+    albumUnknown: 'The album returned an unknown result; the image is retained for retry',
     albumFailed: 'Save failed; draft retained for retry',
+    previewStale: 'The rating-card content changed. Regenerate the PNG before saving or posting.',
     preview: 'Rating-card PNG preview',
     preparePost: 'Post to Xiaohongshu',
     postRequiresPreview: 'Generate the rating-card PNG before opening posting confirmation.',
+    postStaleTitle: 'The rating card has changed',
+    postStaleHelp: 'An older PNG is available. Choose how to continue sharing.',
+    postRegenerate: 'Generate a new image, then share',
+    postShareOld: 'Share the older image',
+    postCancelShare: 'Cancel',
     postBridgeMissing:
       'Post publishing is unavailable in this client; PNG generation and album save still work.',
     postConfirmation: 'Posting confirmation',
@@ -266,10 +326,15 @@ const copy = {
     postSubmit: 'Continue to Xiaohongshu',
     postConfirming: 'Review the content before continuing',
     postRestored: 'Previous unfinished posting confirmation restored',
+    postAcceptedRestored:
+      'The previous posting request was accepted; it will not be submitted again automatically',
     postPersisting: 'Saving the draft and pending post…',
     postSubmitting: 'Entering Xiaohongshu’s posting flow…',
     postAccepted: 'Entered Xiaohongshu’s posting flow; you still decide whether to publish',
     postCancelled: 'Cancelled; confirmation text and rating card remain intact',
+    postDenied: 'Posting permission was denied; allow it in Xiaohongshu and retry',
+    postUnavailable: 'This container has no posting capability; PNG export remains available',
+    postUnknown: 'Posting returned an unknown result; confirmation content remains for retry',
     postFailed: 'Could not enter posting; confirmation content remains available for retry',
     postStorageFailed: 'Draft or pending post could not be saved; posting was not opened',
     postInvalid: 'Pending post is invalid; regenerate the rating card',
@@ -309,6 +374,13 @@ const copy = {
 
 let cachedInitialState: InitialState | null = null;
 
+function createPostRequestId(): string {
+  const randomUuid = globalThis.crypto?.randomUUID;
+  return randomUuid
+    ? randomUuid.call(globalThis.crypto)
+    : `post-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function initialState(): InitialState {
   if (cachedInitialState) return cachedInitialState;
   try {
@@ -316,13 +388,18 @@ function initialState(): InitialState {
     const pendingPost = loadPendingPostDraft(window.localStorage);
     cachedInitialState = {
       ...initialized,
-      pendingPost: pendingPost.status === 'restored' ? pendingPost.draft : null,
+      pendingPost:
+        pendingPost.status === 'restored' || pendingPost.status === 'accepted'
+          ? pendingPost.draft
+          : null,
       pendingPostState:
-        pendingPost.status === 'restored'
-          ? 'restored'
-          : pendingPost.status === 'invalid'
-            ? 'invalid'
-            : 'idle',
+        pendingPost.status === 'accepted'
+          ? 'accepted'
+          : pendingPost.status === 'restored'
+            ? 'restored'
+            : pendingPost.status === 'invalid'
+              ? 'invalid'
+              : 'idle',
     };
   } catch {
     cachedInitialState = {
@@ -714,11 +791,23 @@ async function createRatingCardPng(
   }
   context.fillStyle = '#64748b';
   context.font = `500 ${Math.max(12, Math.round(config.width * 0.016))}px Segoe UI, sans-serif`;
+  const signature = rating.personalSignature?.trim();
   context.fillText(
-    'XDRATE MUSIC · music-linear-100-v4 · local Canvas',
+    fitCanvasText(
+      context,
+      signature ? `签名：${signature}` : 'XDRATE MUSIC · music-linear-100-v4 · local Canvas',
+      config.width - margin * 2,
+    ),
     margin,
     config.height - margin / 2,
   );
+  if (signature) {
+    context.fillText(
+      'XDRATE MUSIC · music-linear-100-v4 · local Canvas',
+      margin,
+      config.height - margin / 2 - 22,
+    );
+  }
   if (coverUrl) {
     await new Promise<void>((resolve) => {
       const image = new Image();
@@ -853,6 +942,7 @@ export function MiniToolApp() {
   const [albumState, setAlbumState] = useState<AlbumState>('idle');
   const [postDraft, setPostDraft] = useState<PostNoteDraft | null>(initial.pendingPost);
   const [postState, setPostState] = useState<PostState>(initial.pendingPostState);
+  const [stalePostChoice, setStalePostChoice] = useState(false);
   const [postTruncation, setPostTruncation] = useState<PostNoteTruncation>({
     title: false,
     content: false,
@@ -860,20 +950,76 @@ export function MiniToolApp() {
   const [preview, setPreview] = useState<string | null>(
     initial.pendingPost?.imageDataUris[0] ?? null,
   );
+  const [previewRevision, setPreviewRevision] = useState<string | null>(null);
   const [ratio, setRatio] = useState<CardRatio>('4:5');
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [coverState, setCoverState] = useState<CoverState>('idle');
   const [coverInfo, setCoverInfo] = useState<CompressedCover | null>(null);
+  const [clearedNotice, setClearedNotice] = useState(false);
   const coverRequest = useRef(0);
+  const previewRequest = useRef(0);
   const postPanel = useRef<HTMLElement | null>(null);
   const postTitleInput = useRef<HTMLInputElement | null>(null);
   const postSubmitButton = useRef<HTMLButtonElement | null>(null);
+  const postRequestId = useRef(initial.pendingPost?.requestId ?? createPostRequestId());
   const viewportBaseline = useRef({ width: window.innerWidth, height: window.innerHeight });
   const t = copy[locale];
   const result = useMemo(() => calculateRating(rating), [rating]);
   const score = result.status === 'ready' ? result.score100 : null;
+  const renderRevision = useMemo(
+    () =>
+      createRenderRevision({
+        rating,
+        ratio,
+        coverUrl,
+        personalSignature: rating.personalSignature,
+      }),
+    [rating, ratio, coverUrl],
+  );
+  const renderRevisionRef = useRef(renderRevision);
+  renderRevisionRef.current = renderRevision;
+  const previewIsCurrent = preview !== null && previewRevision === renderRevision;
   const platform = useMemo(() => createMiniToolPlatformServices(window), []);
   const postBridgeAvailable = platform.isPostNoteBridgeAvailable();
+
+  useEffect(() => {
+    previewRequest.current += 1;
+  }, [renderRevision]);
+
+  useEffect(() => {
+    if (
+      !postDraft ||
+      !['confirming', 'restored', 'cancelled', 'failed', 'accepted'].includes(postState)
+    ) {
+      return;
+    }
+    const persist = () => {
+      savePendingPostDraft(window.localStorage, postDraft, {
+        requestId: postRequestId.current,
+        renderRevision,
+        state:
+          postState === 'accepted'
+            ? 'accepted'
+            : postState === 'cancelled'
+              ? 'cancelled'
+              : postState === 'failed'
+                ? 'failed'
+                : 'persisted',
+      });
+    };
+    const timer = window.setTimeout(persist, 250);
+    const onPageHide = () => persist();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') persist();
+    };
+    window.addEventListener('pagehide', onPageHide);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('pagehide', onPageHide);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [postDraft, postState, renderRevision]);
 
   useEffect(() => {
     const savingTimer = window.setTimeout(() => setSaveState('saving'), 0);
@@ -965,6 +1111,13 @@ export function MiniToolApp() {
 
   const updateWork = (key: 'title' | 'artist' | 'album' | 'releaseYear', value: string) =>
     setRating((current) => ({ ...current, work: { ...current.work, [key]: value } }));
+  const updateWorkLabel = (key: 'artistLabel' | 'albumLabel', value: string) =>
+    setRating((current) => ({
+      ...current,
+      // Keep an explicitly blank editable label blank; converting it to null
+      // would immediately render the default “艺术家/专辑” text again.
+      work: { ...current.work, [key]: value.trim().length > 0 ? value : '' },
+    }));
   const updateAxis = (id: string, patch: Partial<RatingAxis>) =>
     setRating((current) => ({
       ...current,
@@ -1028,6 +1181,12 @@ export function MiniToolApp() {
     setCoverUrl(null);
     setCoverInfo(null);
     setCoverState('idle');
+  };
+  const clearDefaultContent = () => {
+    if (!window.confirm(t.clearDefaultConfirm)) return;
+    clearCover();
+    setRating((current) => clearRatingContent(current));
+    setClearedNotice(true);
   };
   const setCatalogSaveFailure = (result: ContentTemplateCatalogSaveResult) => {
     setTemplateNotice(
@@ -1108,63 +1267,110 @@ export function MiniToolApp() {
     if (!window.confirm(t.confirmDelete)) return;
     persistTemplateCatalog(removeContentTemplate(templateCatalog, template.id), 'deleted');
   };
-  const generatePreview = async () => {
+  const renderCurrentPreview = async (): Promise<string | null> => {
+    const sourceRevision = renderRevision;
+    const request = ++previewRequest.current;
     try {
-      setPreview(await createRatingCardPng(rating, score, ratio, coverUrl));
-      setAlbumState('preview-ready');
+      const image = await createRatingCardPng(rating, score, ratio, coverUrl);
+      if (request !== previewRequest.current || renderRevisionRef.current !== sourceRevision) {
+        return null;
+      }
+      setPreview(image);
+      setPreviewRevision(sourceRevision);
+      return image;
     } catch {
-      setAlbumState('failed');
+      if (request === previewRequest.current) setAlbumState('failed');
+      return null;
     }
+  };
+  const generatePreview = async () => {
+    const image = await renderCurrentPreview();
+    if (image) setAlbumState('preview-ready');
   };
   const changeRatio = (nextRatio: CardRatio) => {
     setRatio(nextRatio);
     setPreview(null);
+    setPreviewRevision(null);
     setAlbumState('idle');
   };
   const saveAlbum = async () => {
+    if (preview && !previewIsCurrent) {
+      setAlbumState('stale');
+      return;
+    }
     setAlbumState('saving');
     try {
-      const image = preview || (await createRatingCardPng(rating, score, ratio, coverUrl));
-      if (!preview) setPreview(image);
+      const image = preview || (await renderCurrentPreview());
+      if (!image) return;
       const saved = await platform.savePngToAlbum(image);
       setAlbumState(
-        saved.status === 'success'
+        saved.status === 'completed'
           ? 'saved'
           : saved.status === 'cancelled'
             ? 'cancelled'
-            : 'failed',
+            : saved.status === 'denied'
+              ? 'denied'
+              : saved.status === 'unavailable'
+                ? 'unavailable'
+                : saved.status === 'unknown'
+                  ? 'unknown'
+                  : 'failed',
       );
     } catch {
       setAlbumState('failed');
     }
   };
-  const openPostConfirmation = () => {
+  const openPostConfirmation = (allowStale = false) => {
     if (!preview || !postBridgeAvailable) return;
+    if (!previewIsCurrent && !allowStale) {
+      setStalePostChoice(true);
+      return;
+    }
     const content = [rating.overallComment.trim(), rating.personalStory.trim()]
       .filter((value) => value.length > 0)
       .join('\n\n');
     const built = buildPostNotePayload({
       title: rating.work.title,
-      content,
+      content: [
+        content,
+        rating.personalSignature?.trim() ? `签名：${rating.personalSignature.trim()}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
       imageDataUris: [preview],
+      renderRevision: previewRevision ?? renderRevision,
     });
     if (!built.ok) {
       setPostState('invalid');
       return;
     }
 
+    const requestId = createPostRequestId();
+    postRequestId.current = requestId;
     setPostDraft({
       ...(built.payload.title === undefined ? {} : { title: built.payload.title }),
       ...(built.payload.content === undefined ? {} : { content: built.payload.content }),
       ...(built.payload.tags === undefined ? {} : { tags: built.payload.tags }),
       imageDataUris: built.payload.mediaInfo.image_resources.map((resource) => resource.url),
+      requestId,
+      renderRevision: previewRevision ?? renderRevision,
+      postState: 'confirming',
+      createdAt: new Date().toISOString(),
     });
     setPostTruncation(built.truncation);
     setPostState('confirming');
+    setStalePostChoice(false);
     window.setTimeout(() => {
       postPanel.current?.scrollIntoView(false);
       postTitleInput.current?.focus();
     }, 0);
+  };
+  const regenerateBeforePost = async () => {
+    const image = await renderCurrentPreview();
+    if (image) {
+      setAlbumState('preview-ready');
+      window.setTimeout(() => openPostConfirmation(false), 0);
+    }
   };
   const updatePostText = (field: 'title' | 'content' | 'tags', value: string) => {
     if (!postDraft) return;
@@ -1185,7 +1391,15 @@ export function MiniToolApp() {
     if (postState !== 'submitting' && postState !== 'persisting') setPostState('confirming');
   };
   const submitPost = async () => {
-    if (!postDraft || !postBridgeAvailable) return;
+    if (
+      !postDraft ||
+      !postBridgeAvailable ||
+      postDraft.imageDataUris[0] !== preview ||
+      postDraft.renderRevision !== previewRevision
+    ) {
+      setPostState('invalid');
+      return;
+    }
     const built = buildPostNotePayload(postDraft);
     if (!built.ok) {
       setPostState('invalid');
@@ -1197,13 +1411,22 @@ export function MiniToolApp() {
       locale,
       rating: cloneRatingWithoutCover(rating),
     });
-    const pendingSaved = savePendingPostDraft(window.localStorage, postDraft);
+    const pendingSaved = savePendingPostDraft(window.localStorage, postDraft, {
+      requestId: postRequestId.current,
+      renderRevision,
+      state: 'persisted',
+    });
     setSaveState(workspaceSaved ? 'saved' : 'failed');
     if (!workspaceSaved || pendingSaved !== 'saved') {
       setPostState('storage-failed');
       return;
     }
 
+    savePendingPostDraft(window.localStorage, postDraft, {
+      requestId: postRequestId.current,
+      renderRevision,
+      state: 'invoking',
+    });
     setPostState('submitting');
     const submitted = await platform.submitPostNote(built.payload);
     const nextState =
@@ -1211,44 +1434,80 @@ export function MiniToolApp() {
         ? 'accepted'
         : submitted.status === 'cancelled'
           ? 'cancelled'
-          : 'failed';
+          : submitted.status === 'denied'
+            ? 'denied'
+            : submitted.status === 'unavailable'
+              ? 'unavailable'
+              : submitted.status === 'unknown'
+                ? 'unknown'
+                : 'failed';
     setPostState(nextState);
+    savePendingPostDraft(window.localStorage, postDraft, {
+      requestId: postRequestId.current,
+      renderRevision,
+      state:
+        nextState === 'accepted' ? 'accepted' : nextState === 'cancelled' ? 'cancelled' : 'failed',
+    });
     if (nextState === 'cancelled' || nextState === 'failed') {
+      postRequestId.current = createPostRequestId();
       window.setTimeout(() => postSubmitButton.current?.focus(), 0);
     }
   };
+  const abandonPostConfirmation = () => {
+    const cleared = clearPendingPostDraft(window.localStorage);
+    setPostDraft(null);
+    setPostState(cleared === 'cleared' ? 'idle' : 'storage-failed');
+  };
   const albumText =
-    albumState === 'idle'
-      ? platform.isAlbumBridgeAvailable()
-        ? t.bridgeReady
-        : t.bridgeMissing
-      : albumState === 'preview-ready'
-        ? t.previewReady
-        : albumState === 'saving'
-          ? t.albumSaving
-          : albumState === 'saved'
-            ? t.albumSaved
-            : albumState === 'cancelled'
-              ? t.albumCancelled
-              : t.albumFailed;
+    preview !== null && !previewIsCurrent
+      ? t.previewStale
+      : albumState === 'idle'
+        ? platform.isAlbumBridgeAvailable()
+          ? t.bridgeReady
+          : t.bridgeMissing
+        : albumState === 'stale'
+          ? t.previewStale
+          : albumState === 'preview-ready'
+            ? t.previewReady
+            : albumState === 'saving'
+              ? t.albumSaving
+              : albumState === 'saved'
+                ? t.albumSaved
+                : albumState === 'cancelled'
+                  ? t.albumCancelled
+                  : albumState === 'denied'
+                    ? t.albumDenied
+                    : albumState === 'unavailable'
+                      ? t.albumUnavailable
+                      : albumState === 'unknown'
+                        ? t.albumUnknown
+                        : t.albumFailed;
   const postText =
-    postState === 'restored'
-      ? t.postRestored
-      : postState === 'persisting'
-        ? t.postPersisting
-        : postState === 'submitting'
-          ? t.postSubmitting
-          : postState === 'accepted'
-            ? t.postAccepted
-            : postState === 'cancelled'
-              ? t.postCancelled
-              : postState === 'failed'
-                ? t.postFailed
-                : postState === 'storage-failed'
-                  ? t.postStorageFailed
-                  : postState === 'invalid'
-                    ? t.postInvalid
-                    : t.postConfirming;
+    postState === 'accepted' && initial.pendingPostState === 'accepted'
+      ? t.postAcceptedRestored
+      : postState === 'restored'
+        ? t.postRestored
+        : postState === 'persisting'
+          ? t.postPersisting
+          : postState === 'submitting'
+            ? t.postSubmitting
+            : postState === 'accepted'
+              ? t.postAccepted
+              : postState === 'cancelled'
+                ? t.postCancelled
+                : postState === 'denied'
+                  ? t.postDenied
+                  : postState === 'unavailable'
+                    ? t.postUnavailable
+                    : postState === 'unknown'
+                      ? t.postUnknown
+                      : postState === 'failed'
+                        ? t.postFailed
+                        : postState === 'storage-failed'
+                          ? t.postStorageFailed
+                          : postState === 'invalid'
+                            ? t.postInvalid
+                            : t.postConfirming;
   const templateText =
     templateNotice === 'seeded'
       ? t.templateSeeded
@@ -1298,6 +1557,16 @@ export function MiniToolApp() {
       <div className="save-status" role="status" aria-live="polite">
         {t[saveState]}
       </div>
+      <section className="panel clear-default-panel" aria-label={t.clearDefault}>
+        <button type="button" className="template-save-button" onClick={clearDefaultContent}>
+          {t.clearDefault}
+        </button>
+        {clearedNotice ? (
+          <p className="panel-help" role="status" aria-live="polite">
+            {t.clearDefaultNotice}
+          </p>
+        ) : null}
+      </section>
       <section className="score-panel" aria-label={t.score}>
         <div>
           <span>{t.score}</span>
@@ -1305,46 +1574,6 @@ export function MiniToolApp() {
           <b>/ 100</b>
         </div>
         {score === null ? <p>{t.unrated}</p> : null}
-      </section>
-      <section className="panel" aria-labelledby="templates-title">
-        <h2 id="templates-title">{t.templates}</h2>
-        <p className="panel-help">{t.templateHelp}</p>
-        <label className="field">
-          <span>{t.templateName}</span>
-          <input
-            value={newTemplateName}
-            maxLength={40}
-            placeholder={t.templatePlaceholder}
-            onChange={(event) => setNewTemplateName(event.target.value)}
-          />
-        </label>
-        <button type="button" className="template-save-button" onClick={saveCurrentTemplate}>
-          {t.saveTemplate}
-        </button>
-        {templateText ? (
-          <div className="template-status" role="status" aria-live="polite">
-            {templateText}
-          </div>
-        ) : null}
-        <div className="template-list" data-testid="template-list">
-          {templateCatalog.templates.length === 0 ? (
-            <p className="empty-state">{t.emptyTemplates}</p>
-          ) : (
-            templateCatalog.templates.map((template) => (
-              <TemplateRow
-                key={`${template.id}-${template.updatedAt}`}
-                template={template}
-                inputLabel={t.templateName}
-                applyLabel={t.applyTemplate}
-                renameLabel={t.renameTemplate}
-                deleteLabel={t.deleteTemplate}
-                onApply={applyTemplate}
-                onRename={renameTemplate}
-                onDelete={deleteTemplate}
-              />
-            ))
-          )}
-        </div>
       </section>
       <section className="panel" aria-labelledby="work-title">
         <h2 id="work-title">{t.work}</h2>
@@ -1357,22 +1586,38 @@ export function MiniToolApp() {
               onChange={(event) => updateWork('title', event.target.value)}
             />
           </label>
-          <label className="field">
-            <span>{t.artist}</span>
+          <div className="field metadata-field">
             <input
+              className="metadata-label-input"
+              aria-label={locale === 'zh-CN' ? '字段名称（可修改）' : 'Editable field label'}
+              value={rating.work.artistLabel ?? t.artist}
+              maxLength={24}
+              placeholder={t.artist}
+              onChange={(event) => updateWorkLabel('artistLabel', event.target.value)}
+            />
+            <input
+              aria-label={rating.work.artistLabel ?? t.artist}
               value={rating.work.artist}
               maxLength={120}
               onChange={(event) => updateWork('artist', event.target.value)}
             />
-          </label>
-          <label className="field">
-            <span>{t.album}</span>
+          </div>
+          <div className="field metadata-field">
             <input
+              className="metadata-label-input"
+              aria-label={locale === 'zh-CN' ? '字段名称（可修改）' : 'Editable field label'}
+              value={rating.work.albumLabel ?? t.album}
+              maxLength={24}
+              placeholder={t.album}
+              onChange={(event) => updateWorkLabel('albumLabel', event.target.value)}
+            />
+            <input
+              aria-label={rating.work.albumLabel ?? t.album}
               value={rating.work.album}
               maxLength={120}
               onChange={(event) => updateWork('album', event.target.value)}
             />
-          </label>
+          </div>
           <label className="field">
             <span>{t.year}</span>
             <input
@@ -1545,6 +1790,16 @@ export function MiniToolApp() {
             }
           />
         </label>
+        <label className="field">
+          <span>{t.signature}</span>
+          <input
+            maxLength={120}
+            value={rating.personalSignature ?? ''}
+            onChange={(event) =>
+              setRating((current) => ({ ...current, personalSignature: event.target.value }))
+            }
+          />
+        </label>
       </section>
       <section className="panel" aria-labelledby="export-title">
         <h2 id="export-title">{t.exportTitle}</h2>
@@ -1574,7 +1829,7 @@ export function MiniToolApp() {
           <button
             type="button"
             disabled={!preview || !postBridgeAvailable}
-            onClick={openPostConfirmation}
+            onClick={() => openPostConfirmation()}
           >
             {t.preparePost}
           </button>
@@ -1589,10 +1844,31 @@ export function MiniToolApp() {
           </div>
         ) : null}
       </section>
-      {!postBridgeAvailable || !preview ? (
+      {!postBridgeAvailable || !previewIsCurrent ? (
         <div className="post-availability" role="status">
-          {!postBridgeAvailable ? t.postBridgeMissing : t.postRequiresPreview}
+          {!postBridgeAvailable
+            ? t.postBridgeMissing
+            : !preview
+              ? t.postRequiresPreview
+              : t.previewStale}
         </div>
+      ) : null}
+      {stalePostChoice ? (
+        <section className="panel post-stale-choice" aria-labelledby="post-stale-title">
+          <h2 id="post-stale-title">{t.postStaleTitle}</h2>
+          <p className="panel-help">{t.postStaleHelp}</p>
+          <div className="actions">
+            <button type="button" className="primary" onClick={() => void regenerateBeforePost()}>
+              {t.postRegenerate}
+            </button>
+            <button type="button" onClick={() => setStalePostChoice(false)}>
+              {t.postCancelShare}
+            </button>
+            <button type="button" onClick={() => openPostConfirmation(true)}>
+              {t.postShareOld}
+            </button>
+          </div>
+        </section>
       ) : null}
       {postDraft && postState !== 'idle' ? (
         <section
@@ -1654,7 +1930,7 @@ export function MiniToolApp() {
             {postText}
           </div>
           <div className="actions post-actions">
-            <button type="button" onClick={() => setPostState('idle')}>
+            <button type="button" onClick={abandonPostConfirmation}>
               {t.postBack}
             </button>
             <button
@@ -1665,6 +1941,8 @@ export function MiniToolApp() {
                 postState === 'persisting' ||
                 postState === 'submitting' ||
                 postState === 'accepted' ||
+                postDraft?.imageDataUris[0] !== preview ||
+                postDraft?.renderRevision !== previewRevision ||
                 !postBridgeAvailable
               }
               onClick={() => void submitPost()}
@@ -1674,6 +1952,46 @@ export function MiniToolApp() {
           </div>
         </section>
       ) : null}
+      <section className="panel" aria-labelledby="templates-title">
+        <h2 id="templates-title">{t.templates}</h2>
+        <p className="panel-help">{t.templateHelp}</p>
+        <label className="field">
+          <span>{t.templateName}</span>
+          <input
+            value={newTemplateName}
+            maxLength={40}
+            placeholder={t.templatePlaceholder}
+            onChange={(event) => setNewTemplateName(event.target.value)}
+          />
+        </label>
+        <button type="button" className="template-save-button" onClick={saveCurrentTemplate}>
+          {t.saveTemplate}
+        </button>
+        {templateText ? (
+          <div className="template-status" role="status" aria-live="polite">
+            {templateText}
+          </div>
+        ) : null}
+        <div className="template-list" data-testid="template-list">
+          {templateCatalog.templates.length === 0 ? (
+            <p className="empty-state">{t.emptyTemplates}</p>
+          ) : (
+            templateCatalog.templates.map((template) => (
+              <TemplateRow
+                key={`${template.id}-${template.updatedAt}`}
+                template={template}
+                inputLabel={t.templateName}
+                applyLabel={t.applyTemplate}
+                renameLabel={t.renameTemplate}
+                deleteLabel={t.deleteTemplate}
+                onApply={applyTemplate}
+                onRename={renameTemplate}
+                onDelete={deleteTemplate}
+              />
+            ))
+          )}
+        </div>
+      </section>
       <footer>
         <p>{t.footer}</p>
         <p>music-linear-100-v4 · MiniTool content template v1</p>

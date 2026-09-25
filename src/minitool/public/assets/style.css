@@ -268,6 +268,31 @@ h1 {
   resize: vertical;
   line-height: 1.5;
 }
+.metadata-field {
+  min-width: 0;
+}
+.metadata-label-input {
+  display: block;
+  min-height: 38px !important;
+  height: 38px;
+  margin: 0 0 6px;
+  padding: 8px 11px !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #334155 !important;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 20px;
+  outline: none;
+  cursor: text;
+}
+.metadata-label-input:focus {
+  border-color: #818cf8;
+  background: #fff !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+}
 .field.compact textarea {
   min-height: 64px;
 }
