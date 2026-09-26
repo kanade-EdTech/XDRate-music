@@ -24,12 +24,13 @@ All notable changes are documented here.
 - Plan v1.1.0 as the WeChat Mini Program adaptation.
 - Defer the standalone Android/iOS App entity, native packages, and store release to v2.0.0.
 
-## Unreleased — Bili Toy adaptation
+## 0.4.1 — Bili Toy delivery note
 
-### Planned
+### Completed
 
-- Adapt the current v0.3.1 offline rating-card flow into an isolated Bili Toy build before v0.4.0 sharing-completion work.
-- Add relative-resource/subpath audits, `toy_doctor.py` content preflight, package manifests, and a JSON preview-before-review gate.
+- Adapt the current offline rating-card flow into an isolated Bili Toy build while preserving the existing `XDRateMusic` slug.
+- Complete relative-resource/subpath audits, `toy_doctor.py` content preflight, package manifests, and the JSON preview-before-review gate.
+- Submit the verified 0.4.1 package for Toy review; approval remains an external platform decision and is not claimed as public publication here.
 - Keep Xiaohongshu Bridge capabilities, Bilibili cloud services, and native mobile APIs out of the first Toy candidate.
 
 ## 0.3.3 — Toy interaction repair

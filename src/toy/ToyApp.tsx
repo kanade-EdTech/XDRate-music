@@ -1,6 +1,8 @@
 import { App } from '../app/App';
 
 export function ToyApp() {
+  const isGamesToy = window.location.pathname.toLowerCase().includes('/xdrategames');
+
   return (
     <>
       <header className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8" data-testid="toy-header">
@@ -11,7 +13,7 @@ export function ToyApp() {
           离线评分卡工具 · Offline rating-card tool
         </p>
       </header>
-      <App />
+      <App domain={isGamesToy ? 'game' : 'music'} />
       <footer className="mx-auto max-w-6xl px-4 pb-8 sm:px-6" data-testid="toy-privacy">
         <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-xs leading-5 text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-400">
           本 Toy 不联网、不读取 B 站账号、不调用小红书

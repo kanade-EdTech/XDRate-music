@@ -1,10 +1,15 @@
 import { RatingEditor } from '../features/rating-editor/RatingEditor';
+import { GameRatingPilot } from '../features/game-rating/GameRatingPilot';
 import { appMetadata } from '../config/appMetadata';
 import { useI18n } from '../i18n/useI18n';
 import { platformServices } from '../platform';
 
-export function App() {
+export type AppDomain = 'music' | 'game';
+
+export function App({ domain }: { domain?: AppDomain } = {}) {
   const { locale, setLocale, t } = useI18n();
+  const queryDomain = new URLSearchParams(window.location.search).get('domain');
+  const isGamePilot = domain === 'game' || queryDomain === 'game';
 
   return (
     <main className="mx-auto min-h-screen min-w-0 max-w-6xl overflow-x-clip px-4 py-8 sm:px-6 sm:py-12">
@@ -43,7 +48,7 @@ export function App() {
           {t('app.description')}
         </p>
       </section>
-      <RatingEditor />
+      {isGamePilot ? <GameRatingPilot /> : <RatingEditor />}
     </main>
   );
 }

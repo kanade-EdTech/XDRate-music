@@ -1,0 +1,75 @@
+{
+  "format": "xdrate-game-template-cover-manifest-v1",
+  "size": [
+    1024,
+    1024
+  ],
+  "formatDetails": "WebP lossy, quality 88, center crop, mild unsharp mask",
+  "sourceDirectory": "模板",
+  "items": [
+    {
+      "id": "red-alert-2",
+      "source": "模板/红警.png",
+      "output": "assets/game-templates/covers/red-alert-2.webp",
+      "originalSize": [
+        474,
+        297
+      ],
+      "outputSize": [
+        1024,
+        1024
+      ],
+      "bytes": 83406,
+      "sha256": "030f18534034cd24d90e50235c3cd987330d66115ba866122d1afcd2337d03de",
+      "rights": "pending-rights-review"
+    },
+    {
+      "id": "call-of-duty-4",
+      "source": "模板/使命召唤4.png",
+      "output": "assets/game-templates/covers/call-of-duty-4.webp",
+      "originalSize": [
+        351,
+        342
+      ],
+      "outputSize": [
+        1024,
+        1024
+      ],
+      "bytes": 78036,
+      "sha256": "6f5a114f35b93179bc31bc38e651e23bceee57134d828c7cad0e941d9d135bc3",
+      "rights": "pending-rights-review"
+    },
+    {
+      "id": "genshin-impact",
+      "source": "模板/b235293aa68d4abfabe85b64fdcae21e_2808688597618152856.png",
+      "output": "assets/game-templates/covers/genshin-impact.webp",
+      "originalSize": [
+        600,
+        600
+      ],
+      "outputSize": [
+        1024,
+        1024
+      ],
+      "bytes": 89854,
+      "sha256": "90f0dcf29df50bcec58a1990033a42aae41b11071d41f48d98dae6c7c1229105",
+      "rights": "pending-rights-review"
+    },
+    {
+      "id": "black-myth-wukong",
+      "source": "模板/黑神话：悟空.png",
+      "output": "assets/game-templates/covers/black-myth-wukong.webp",
+      "originalSize": [
+        421,
+        287
+      ],
+      "outputSize": [
+        1024,
+        1024
+      ],
+      "bytes": 93488,
+      "sha256": "cd4540fabe2d8b919c47fcd18c265ac67422ccd41448926d5778805215e945ac",
+      "rights": "pending-rights-review"
+    }
+  ]
+}

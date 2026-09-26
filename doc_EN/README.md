@@ -56,6 +56,9 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 | [39 Version Roadmap Reset and Future Plan](./39_VERSION_ROADMAP_RESET_AND_FUTURE_PLAN.md) | v0.4.0 sharing, v1.0.0 music mainline and independent anime experiment, v1.1.0 WeChat, v2.0.0 App entity | Everyone |
 | [40 V0.4.0 Sharing Mechanism Design](./40_V0.4.0_SHARING_MECHANISM_DESIGN.md) | Sharing targets, contracts, state machine, adapters, failure taxonomy, and gates | Product, engineering, QA |
 | [41 V0.4.0 Sharing Mechanism Implementation Plan](./41_V0.4.0_SHARING_MECHANISM_IMPLEMENTATION_PLAN.md) | Snapshot invalidation, recovery idempotency, probes, signature, and release gates | Product, engineering, QA |
+| [42 V0.5.0 Game-Rating Pilot Development Plan](./42_V0.5.0_GAME_RATING_PILOT_DEVELOPMENT_PLAN.md) | Game domain pack, covered personal-rating templates, migration, and pilot gates | Product, engineering, QA |
+| [43 V0.5.0 M0 Domain Contract and Template Inventory Log](./43_V0.5.0_M0_DOMAIN_CONTRACT_AND_TEMPLATE_INVENTORY_LOG.md) | M0 types, five template slots, rights gate, and test evidence | Engineering, QA, release |
+| [44 V0.5.0 M1 Template Library and User-Copy Execution Log](./44_V0.5.0_M1_TEMPLATE_LIBRARY_AND_USER_COPY_EXECUTION_LOG.md) | Four game examples, apply/copy/rename/delete, and deep-copy isolation | Engineering, QA |
 | [37 V0.3.1 Bili Toy Current-Version Adaptation Plan](./37_V0.3.1_BILI_TOY_CURRENT_VERSION_ADAPTATION_PLAN.md)                                       | Current rating card adapted to Bili Toy, preflight, preview, and review gates | Product, engineering, QA       |
 | [Manual Product Conclusions](./MANUAL_PRODUCT_CONCLUSIONS.md)                                                                                       | Sample review conclusions, merged reasons, publisher and platform ADRs        | Everyone                       |
 
@@ -77,3 +80,4 @@ Multidimensional Music Rating (`XDRate Music`) is an open-source, offline-first,
 - Release: Windows 10/11 x64; public packages require Authenticode + RFC 3161 timestamp; `0.2.0` updates manually
 - Desktop status: M4 security, offline/navigation, automation, and docs are complete. The NSIS candidate remains unsigned with a development icon; clean Windows 10/11 install and screen-reader checks remain
 - MiniTool status: v0.3.0 M4/RC.1 remains frozen. v0.3.1 skips a standalone M3 by product decision and absorbs its gates into M4 automation. RC.1 was built from a clean commit and passes independent dist/ZIP audit and byte-parity verification; Android 8.1/WebView 61, current Android, iOS 18.4+, real-device screen-reader, and exact-package permission matrices still block public release
+- Bili Toy status: `XDRateMusic` passed the subpath audit, `toy_doctor.py` preflight, and preview confirmation; the 0.4.1 package is submitted for platform review. Production-link and mobile smoke checks begin after approval
