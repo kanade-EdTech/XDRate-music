@@ -72,6 +72,13 @@ export function initializeMiniTool(
     };
   }
 
+  if (!startupSeed) {
+    const defaultTemplate = templateCatalog.templates.find(
+      (template) => template.id === HAITANGXIAN_TEMPLATE_ID,
+    );
+    if (defaultTemplate) startupSeed = cloneRatingWithoutCover(defaultTemplate.rating);
+  }
+
   const storageUnavailable = workspace.status === 'unavailable';
   return {
     locale: 'zh-CN',

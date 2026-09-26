@@ -146,7 +146,7 @@ Before the current desktop release, validate at least:
 - Representative 1280×720, 1440×900, and 1920×1080 desktop viewports;
 - Mouse and keyboard input; 100%, 125%, and 150% system scaling plus 1×/high-DPI screens.
 
-Automated responsive regression may continue at 360–430 px widths, but standalone-mobile acceptance on real iOS Safari, Android Chrome, and touch moves to v0.4. It does not block the current desktop release or V0.2. The v0.3.0 Xiaohongshu MiniTool instead has container-, Chrome 61-, real-device-, and offline-ZIP-specific gates; ordinary mobile-browser results cannot substitute for them.
+Automated responsive regression may continue at 360–430 px widths, but standalone-mobile App acceptance on real iOS and Android, browser/PWA comparison where applicable, and touch moves to v0.4.0. It does not block the current desktop release or V0.2. The v0.3.0 Xiaohongshu MiniTool instead has container-, Chrome 61-, real-device-, and offline-ZIP-specific gates; ordinary mobile-browser results cannot substitute for them.
 
 ## 5. Performance and capacity
 

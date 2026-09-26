@@ -21,7 +21,7 @@
 - [ ] Test keyboard-only creation, template application, JSON import/export, and PNG download.
 - [ ] Perform a screen-reader smoke test on the main editing flow.
 - [ ] Inspect square, portrait, and wide cards with long Chinese and English text.
-- [ ] For v0.4 standalone mobile only: test iOS Safari and Android Chrome on real devices. This does not block the current desktop release.
+- [ ] For v0.4.0 standalone mobile App only: test iOS and Android on exact real-device candidates, including browser/PWA comparison where applicable. This does not block the current desktop release.
 - [ ] Confirm that a storage-quota failure offers JSON backup without claiming the draft was saved.
 - [ ] Verify version number, license, changelog, privacy notice, schema version, and algorithm version are consistent.
 
@@ -67,3 +67,33 @@
 - [ ] Test the exact ZIP in the Xiaohongshu PC simulator, Android 8.1/Chrome-WebView 61 baseline, current Android, and iOS 18.4+ real-device containers.
 - [ ] Record the ZIP SHA-256, source commit, file manifest, device/app versions, privacy boundary, and known limitations.
 - [x] Keep direct `postNote` publishing disabled unless `V03-DEC-01` is explicitly approved and its separate privacy/acceptance gates pass.
+
+## Xiaohongshu MiniTool v0.3.1 M4 gates
+
+- [x] Keep v0.3.0 RC immutable and isolate v0.3.1 filenames, manifests, hashes, and user-facing version identity.
+- [x] Detect `postNote` independently and classify native acceptance, cancellation, unavailability, and failure without treating acceptance as publication.
+- [x] Require a final bilingual confirmation that shows the exact image and text, enforces 20/1,000/1–18 limits, and explains the privacy boundary.
+- [x] Persist the draft before native handoff and restore content plus focus after cancellation or failure.
+- [x] Verify all eleven ratios use byte-identical images in preview, confirmation, and the `postNote` payload.
+- [x] Pass MiniTool automation: Vitest 158/158, focused unit tests 39/39, E2E 22/22, and final-ZIP verifier 2/2.
+- [x] Audit the exact RC.1 as three allowed files with no warnings, no external resources, 254,566-byte ZIP size, and byte parity with the audited directory.
+- [x] Freeze RC.1 SHA-256 as `192efc241d8ad8f6a29d686d3f3d43d2c67b5eb1a79772859ed39fb0f2ec9f02` from clean source commit `9c2fc498f6e4956943bc9b94a3b3257fcca5f64b`.
+- [ ] Load that exact RC.1 in the official Xiaohongshu PC simulator and record versions plus the core-flow result.
+- [ ] Test that exact RC.1 on Android 8.1/WebView 61, a current Android device, and iOS 18.4+.
+- [ ] Complete album allow/deny/cancel/recover and post accept/cancel/fail/return matrices on real devices.
+- [ ] Record TalkBack and VoiceOver evidence for editing, confirmation, cancellation, and focus restoration.
+- [ ] Confirm manually that native acceptance still requires the user to complete public publication in Xiaohongshu.
+- [ ] Review sanitized evidence, known limitations, privacy copy, and final release notes before upload or tagging.
+
+## Bili Toy v0.3.1 adaptation gates
+
+- [ ] Install the official `toy` CLI and capture `toy --help-json`; do not use a legacy script or guessed flags.
+- [ ] Add an isolated Bili Toy build entry and output directory without overwriting Web, desktop, or Xiaohongshu artifacts.
+- [ ] Verify one unambiguous `index.html`, relative resources, Toy subpath loading, hash-safe navigation, and no source/test files in the upload package.
+- [ ] Run `toy_doctor.py` on the exact candidate with zero ERRORs; record WARN dispositions.
+- [ ] Re-run music algorithm, Archive Schema v2, templates, drafts, eleven ratios, PNG parity, keyboard, narrow-screen, and screen-reader regressions.
+- [ ] Keep Xiaohongshu JSBridge, `postNote`, Bilibili cloud storage, leaderboards, telemetry, and native mobile APIs out of the first candidate.
+- [ ] Generate `0.3.1-toy-rc.1` and run `toy create` or `toy update` in JSON preview mode without `--yes`.
+- [ ] Provide the exact `preview_url` and change summary to the user; obtain explicit confirmation before review submission.
+- [ ] Submit only with the same arguments plus `--yes` after explicit confirmation; record Toy id, status, preview URL, source commit, hash, and known limits.
+- [ ] Use `rc.2` or later for any package change; never overwrite an old candidate or reuse its hash/slug.

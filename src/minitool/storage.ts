@@ -17,6 +17,7 @@ export interface MiniToolWorkspace {
 export interface MiniToolStorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem?(key: string): void;
 }
 
 export type MiniToolWorkspaceLoadResult =
@@ -112,7 +113,8 @@ export function isMiniToolRating(value: unknown): value is MusicRatingDraft {
     value.negativeItems.length <= 5 &&
     value.negativeItems.every(isNegativeItem) &&
     isString(value.overallComment, 2000) &&
-    isString(value.personalStory, 3000)
+    isString(value.personalStory, 3000) &&
+    (value.personalSignature === undefined || isString(value.personalSignature, 120))
   );
 }
 

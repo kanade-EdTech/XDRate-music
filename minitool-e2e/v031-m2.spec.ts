@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const artifactUrl = new URL('../dist-minitool/index.html', import.meta.url);
 const workspaceKey = 'xdrate.music.minitool.workspace.v1';
-const pendingPostKey = 'xdrate.music.minitool.pending-post.v1';
+const pendingPostKey = 'xdrate.music.minitool.pending-post.v2';
 
 test('confirms exact text and image, persists both records, then enters native posting', async ({
   page,

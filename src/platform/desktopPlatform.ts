@@ -49,17 +49,21 @@ function failed(error: unknown, fallback: FileOperationFailure): FileOperationRe
 }
 
 async function toBytes(contents: Blob | string): Promise<number[]> {
-  let blob: Blob;
   if (typeof contents === 'string') {
     const source = new URL(contents);
-    if (source.protocol !== 'data:' && source.protocol !== 'blob:') {
+    if (source.protocol !== 'data:') {
       throw new Error('unsupported-binary-source');
     }
-    blob = await (await fetch(source)).blob();
-  } else {
-    blob = contents;
+    const comma = contents.indexOf(',');
+    if (comma < 0) throw new Error('unsupported-binary-source');
+    const payload = contents.slice(comma + 1);
+    if (source.pathname.includes(';base64')) {
+      const binary = atob(payload);
+      return Array.from(binary, (character) => character.charCodeAt(0));
+    }
+    return Array.from(new TextEncoder().encode(decodeURIComponent(payload)));
   }
-  return Array.from(new Uint8Array(await blob.arrayBuffer()));
+  return Array.from(new Uint8Array(await contents.arrayBuffer()));
 }
 
 export const nativeFileSystem: PlatformFileSystem = {

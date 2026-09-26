@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+/* The Toy build uses `toy/` as Vite's root, while the React components live
+   under `src/`. Explicitly include them so Tailwind emits every utility used
+   by the shared editor (including the compact rating icons). */
+@source "../**/*.{ts,tsx}";
 
 :root {
   color: #0f172a;

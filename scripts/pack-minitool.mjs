@@ -92,7 +92,7 @@ function makeEndRecord(entryCount, centralSize, centralOffset) {
 async function main() {
   const source = resolve(process.argv[2] ?? 'dist-minitool');
   const output = resolve(
-    process.argv[3] ?? 'artifacts/minitool/xdrate-music-v0.3.0-m2-engineering.zip',
+    process.argv[3] ?? 'artifacts/minitool/xdrate-music-v0.3.1-m4-engineering.zip',
   );
   const files = (await collectFiles(source)).sort((left, right) =>
     zipPath(source, left).localeCompare(zipPath(source, right), 'en'),

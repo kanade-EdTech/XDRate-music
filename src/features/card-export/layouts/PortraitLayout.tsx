@@ -160,7 +160,7 @@ export function PortraitLayout({
 
       {/* Row 4 — Footer (fixed 32px track) */}
       <div className="flex min-h-0 items-center overflow-hidden">
-        <CardFooter dark={dark} />
+        <CardFooter dark={dark} signature={draft.personalSignature} />
       </div>
     </div>
   );

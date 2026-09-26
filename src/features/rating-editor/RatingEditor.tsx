@@ -21,6 +21,7 @@ import {
   createNegativeItem,
   createRatingAxis,
   createWorkMetadataEntry,
+  clearRatingContent,
 } from '../../domain/rating/presets';
 import type {
   ImportanceLevel,
@@ -115,9 +116,13 @@ export function RatingEditor() {
       return { workspace: null, recoveryWorkspace: null, templates: [], storageError: true };
     }
   });
-  const [draft, setDraft] = useState<MusicRatingDraft>(
-    () => initialState.workspace?.rating ?? createDefaultRating(),
-  );
+  const [draft, setDraft] = useState<MusicRatingDraft>(() => {
+    const restored = initialState.workspace?.rating ?? createDefaultRating();
+    if (restored.mode !== 'custom' && restored.axes.length === 0) {
+      return { ...restored, axes: createDefaultAxes(restored.mode) };
+    }
+    return restored;
+  });
   const [cardOptions, setCardOptions] = useState<CardOptions>(
     () => initialState.workspace?.cardOptions ?? createDefaultCardOptions(),
   );
@@ -132,6 +137,7 @@ export function RatingEditor() {
   );
   const [coverError, setCoverError] = useState<string | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [showClearedNotice, setShowClearedNotice] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [overflowResult, setOverflowResult] = useState<CardOverflowResult>({
     hasOverflow: false,
@@ -159,12 +165,21 @@ export function RatingEditor() {
     kind: ProtectedActionKind;
     run: ProtectedActionCallback;
   } | null>(null);
+  const clearedDraftRef = useRef(false);
   const requestProtectedActionRef = useRef<
     (kind: ProtectedActionKind, action: ProtectedActionCallback) => void
   >(() => undefined);
   const closeNativeWindowRef = useRef<ProtectedActionCallback>(() => undefined);
   const rating = useMemo(() => calculateRating(draft), [draft]);
   const duplicateAxisNames = hasDuplicateAxisNames(draft.axes);
+
+  useEffect(() => {
+    if (clearedDraftRef.current) {
+      clearedDraftRef.current = false;
+      return;
+    }
+    if (showClearedNotice) setShowClearedNotice(false);
+  }, [draft, showClearedNotice]);
   const windowTitle = useMemo(
     () =>
       createWindowTitle({
@@ -734,6 +749,18 @@ export function RatingEditor() {
     }));
   }
 
+  function clearDefaultContent() {
+    if (!window.confirm(t('rating.clearConfirm'))) return;
+    clearedDraftRef.current = true;
+    setDraft((current) => {
+      return clearRatingContent(current);
+    });
+    setShowClearedNotice(true);
+    setCoverError(null);
+    setExportError(null);
+    setArchiveError(null);
+  }
+
   function removeAxis(axisId: string) {
     setDraft((current) =>
       current.axes.length === 1
@@ -749,6 +776,19 @@ export function RatingEditor() {
         data-testid="rating-editor-layout"
       >
         <section className="min-w-0 space-y-6" aria-label={t('rating.editor')}>
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-slate-900">
+            <button type="button" className="button-secondary" onClick={clearDefaultContent}>
+              {t('rating.clearDefault')}
+            </button>
+            {showClearedNotice && (
+              <p
+                className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400"
+                role="status"
+              >
+                {t('rating.clearNotice')}
+              </p>
+            )}
+          </div>
           <Panel title={t('metadata.title')}>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
@@ -1003,6 +1043,16 @@ export function RatingEditor() {
                 }
                 maxLength={3000}
                 rows={5}
+                className="input"
+              />
+            </Field>
+            <Field label={t('rating.personalSignature')} extraClassName="mt-4">
+              <input
+                value={draft.personalSignature ?? ''}
+                onChange={(event) =>
+                  setDraft((current) => ({ ...current, personalSignature: event.target.value }))
+                }
+                maxLength={120}
                 className="input"
               />
             </Field>

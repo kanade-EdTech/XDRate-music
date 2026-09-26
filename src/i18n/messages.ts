@@ -136,8 +136,13 @@ export const messages = {
     'rating.reviewTitle': '详细评价',
     'rating.overallComment': '总体评价（选填）',
     'rating.personalStory': '你和它的故事（选填）',
+    'rating.personalSignature': '个人签名档（可选）',
     'rating.reset': '重置本次评价',
     'rating.resetConfirm': '确定要重置本次评价吗？未保存的内容会丢失。',
+    'rating.clearDefault': '一键清除默认内容',
+    'rating.clearConfirm': '确定清除默认文字、评分、理由、故事和封面吗？已保存模板不会受影响。',
+    'rating.clearNotice':
+      '已清除默认内容，当前是一张空白评分卡。灰色文字只是填写提示，用来说明这里可以填写什么；它不会计入评分，不会出现在导出的 PNG 中，也不会保存为作品内容。你可以从作品信息、评价轴、分数和评分理由开始填写；暂时留空也不会影响页面继续使用。',
     'rating.breakdownTitle': '综合评分',
     'rating.positiveScore': '正向百分制分',
     'rating.penalty': '百分制负面扣分',
@@ -351,8 +356,14 @@ export const messages = {
     'rating.reviewTitle': 'Detailed review',
     'rating.overallComment': 'Overall comment (optional)',
     'rating.personalStory': 'Your story with it (optional)',
+    'rating.personalSignature': 'Personal signature (optional)',
     'rating.reset': 'Reset this rating',
     'rating.resetConfirm': 'Reset this rating? Unsaved content will be lost.',
+    'rating.clearDefault': 'Clear seeded content',
+    'rating.clearConfirm':
+      'Clear the seeded text, ratings, reasons, story, and cover? Saved templates will remain.',
+    'rating.clearNotice':
+      'Default content cleared. This is now a blank rating card. The gray text is only a guide to what can be entered here; it is not scored, it will not appear in exported PNGs, and it is not saved as work content. Start with the work information, rating axes, scores, or reasons whenever you are ready; leaving fields blank is fine.',
     'rating.breakdownTitle': 'Aggregate score',
     'rating.positiveScore': 'Positive score (100-point)',
     'rating.penalty': 'Negative deduction (100-point)',

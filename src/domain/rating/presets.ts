@@ -78,5 +78,26 @@ export function createDefaultRating(
     negativeItems: [],
     overallComment: '',
     personalStory: '',
+    personalSignature: '',
+  };
+}
+
+/** Clear user-facing content while keeping the selected mode and axis structure. */
+export function clearRatingContent(rating: MusicRatingDraft): MusicRatingDraft {
+  const axes =
+    rating.mode === 'custom'
+      ? rating.axes
+      : rating.axes.length > 0
+        ? rating.axes
+        : createDefaultAxes(rating.mode);
+
+  return {
+    ...rating,
+    work: createWorkMetadata(),
+    axes: axes.map((axis) => ({ ...axis, score: 0, reason: '' })),
+    negativeItems: [],
+    overallComment: '',
+    personalStory: '',
+    personalSignature: '',
   };
 }

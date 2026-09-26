@@ -144,7 +144,7 @@ The main branch or release tag also runs critical Playwright flows across browse
 
 - v0.2: wrap the existing Web UI in Tauri; M1 desktop shell/platform boundaries are complete, and M2 adds native filesystem adapters.
 - v0.3.0: add a dedicated Xiaohongshu MiniTool entry and offline-ZIP pipeline; reuse pure domain/card models while isolating the container behind Chrome 61 classic scripts, compatibility CSS, relative resources, and a narrow `window.xhs.miniTool` adapter.
-- v0.4: evaluate responsive PWA and Tauri Mobile first; consider Flutter only if reuse, plugins, or UX are inadequate.
+- v0.4.0: complete sharing contracts for preview/export, album save, system share, platform handoff, and recovery without building a standalone App entity. v1.0.0 enters the music/anime/books/film multi-domain rater, v1.1.0 adapts it to WeChat, and the standalone App entity moves to v2.0.0.
 - Anime and games reuse the generic rating engine with separate presets, rules, and entry points.
 
 ### 10.1 V0.3.0 Xiaohongshu MiniTool boundary

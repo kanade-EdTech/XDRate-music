@@ -62,6 +62,7 @@ web_modules/
 # Vite build output
 dist/
 dist-minitool/
+dist-toy/
 artifacts/minitool/
 src-tauri/target/
 .tauri-tmp/

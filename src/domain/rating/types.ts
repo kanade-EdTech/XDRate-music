@@ -43,6 +43,8 @@ export interface MusicRatingDraft {
   negativeItems: NegativeItem[];
   overallComment: string;
   personalStory: string;
+  /** Optional author signature shown on exported cards and share payloads. */
+  personalSignature?: string;
 }
 
 export interface AxisContribution {

@@ -2,7 +2,7 @@
 
 ## 1. Delivery strategy
 
-Build a verifiable, fully offline Web MVP, then expand in order to Windows desktop, a Xiaohongshu MiniTool, and standalone mobile. Milestones are demonstrable vertical slices, not isolated technical layers.
+Build a verifiable, fully offline Web MVP, then expand to Windows desktop, the Xiaohongshu MiniTool, Bili Toy, sharing, the multi-domain rater, and WeChat. The standalone App entity is deferred to v2.0.0. Milestones are demonstrable vertical slices, not isolated technical layers. See the [roadmap reset](./39_VERSION_ROADMAP_RESET_AND_FUTURE_PLAN.md).
 
 ## 2. v0.1 Web MVP
 
@@ -59,24 +59,53 @@ Estimate: 9–17 effective development days, depending on visual polish and cros
 - The container cannot mirror desktop arbitrary JSON open/save. v0.3.0 guarantees only container-local draft recovery and explicitly states that container storage is not a permanent backup.
 - See the [V0.3.0 Xiaohongshu MiniTool Development Plan](./23_V0.3.0_XIAOHONGSHU_MINITOOL_DEVELOPMENT_PLAN.md) for scope, milestones, compatibility, performance, and ZIP acceptance gates.
 
-## 5. v0.4 Standalone Mobile
+## 5. v0.3.1 Bili Toy Current-Version Adaptation
 
-The former v0.3 Mobile plan moves in full to v0.4. Validate responsive PWA and Tauri Mobile first. Evaluate a Flutter rewrite only if essential plugins, performance, accessibility, or native UX fail requirements. Any rewrite decision must include maintenance cost and data compatibility. Xiaohongshu-specific JSBridge and ZIP constraints must not leak back into the standalone-mobile architecture.
+Before starting the standalone mobile App, adapt the current v0.3.1 rating and offline capabilities into a Bilibili Toy. This work uses a dedicated build entry and output directory and does not change the Xiaohongshu MiniTool, desktop, or Web mainline. It does not copy the Xiaohongshu JSBridge or add Bilibili cloud storage, leaderboards, or accounts.
 
-## 6. Future cross-category capability
+- M0: install and discover the official `toy` CLI, inventory current-version boundaries, and freeze the Bili Toy dependency list and version identity.
+- M1: build the Bili Toy shell, relative resources, subpath compatibility, bilingual UI, and current music-rating loop.
+- M2: regress eleven ratios, preview/PNG parity, templates, drafts, covers, keyboard/narrow layout, and screen reader behavior; run `toy_doctor.py` with zero ERRORs.
+- M3: produce `0.3.1-toy-rc.1` and run the `toy` CLI JSON preview; do not use `--yes` before explicit user confirmation.
+- M4: record Toy preview, review status, online subpath smoke results, and known limitations; rejected fixes increment the candidate and never overwrite old packages or hashes.
 
-- Extract the generic multidimensional engine for separate `XDRank Anime` and `XDRank Games` presets.
-- Implement ranges such as -4–9 or -3–10 as rule configuration, not hard-coded UI.
-- Politics-related axes, maximum-score restrictions, and password unlocks are sensitive and underspecified. Do not implement them before threat modeling, legal review, and explicit requirements.
+See the [V0.3.1 Bili Toy Current-Version Adaptation Plan](./37_V0.3.1_BILI_TOY_CURRENT_VERSION_ADAPTATION_PLAN.md) for work packages, acceptance matrix, and CLI gates.
 
-## 7. Versions and branches
+## 6. v0.4.0 Sharing Completion
+
+v0.4.0 no longer builds a standalone App entity. It completes the sharing loop: 11-ratio preview/PNG parity, album save, system share, platform handoff, confirmation, privacy copy, cancellation, and failure recovery. Desktop, MiniTool, and Bili Toy keep separate adapters while sharing rating/card/error contracts. Native App toolchains, packages, and stores move to v2.0.0. See the [roadmap reset](./39_VERSION_ROADMAP_RESET_AND_FUTURE_PLAN.md).
+
+## 7. v0.5.0 Game-Rating Pilot
+
+Use a minimal game-domain loop to validate domain packs, rules, fields, and card requirements without rewriting the entire frontend or adding an online game database. This evidence feeds the 1.0.0 frontend rewrite and multi-domain release.
+
+## 8. v1.0.0 New Frontend and Multi-Domain Rater
+
+- `XDRate` 1.0.0 rebuilds the frontend against the stable core and launches with music, anime, books, film/television, and games.
+- Build the new frontend as a parallel entry rather than overwriting 0.x; maintain the old entry until import/export, sharing, accessibility, and rollback gates pass.
+- Declarative domain packs provide axes, fields, scoring rules, copy, and card labels over shared scoring, archive, migration, and export contracts.
+- Preserve v0.3.x music compatibility; politics, sensitive identity axes, and unresearched domains stay out of defaults.
+
+## 9. v1.1.0 WeChat Mini Program
+
+- Adapt the 1.0.0 domain core to the WeChat container.
+- Validate music first, then expose anime, books, and film/TV; keep WeChat file, album, share, and lifecycle APIs behind narrow adapters.
+- Add independent review, package-size, privacy, permissions, and real-device gates.
+
+## 10. v2.0.0 Standalone App Entity
+
+- Start only after the 1.1.0 WeChat and sharing evidence is stable.
+- Freeze Android/iOS identity, upgrades, signing, permissions, lifecycle, and store strategy.
+- Choose Tauri Mobile, Flutter, or another shell from evidence and reuse the 1.x domain, algorithm, Schema, and card contracts.
+
+## 11. Versions and branches
 
 - Use semantic versions such as `0.1.0` and `0.2.0`.
 - Use short-lived feature branches and Pull Requests into `main`.
 - Every release tag includes changes, known issues, schema version, and algorithm version.
 - A breaking archive change increments the schema major version and provides migration or a clear incompatibility message.
 
-## 8. Definition of done
+## 12. Definition of done
 
 A feature is complete only when:
 
